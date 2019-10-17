@@ -1,7 +1,8 @@
+---
 title: windows样本分析之基础静态分析
 date: 2019-09-01 15:35:19
-tags: Windows病毒分析
-
+tags: windows病毒分析
+---
 # 目标
 
 1.样本鉴定黑白
@@ -68,8 +69,6 @@ pestdio查看导入表的API调用和一些字符串信息，来进行判断
 
 1. PEStudio查看文件头的时间戳
 2. PEStudio查看文件头的文件类型
-3. 查看导入表里的API和String表中的网络特征
-4. 查看String表中的文件字符串
 5. DIE/PEID查壳情况或者string表和api的一些特征
 
 # 实践过程
@@ -82,7 +81,7 @@ pestdio查看导入表的API调用和一些字符串信息，来进行判断
 
 42/70的检出率，可以确认是病毒。后面几个检测就可以放到后面，收集样本信息的地方了
 
-![1567334198496](C:\Users\xiongchaochao\AppData\Roaming\Typora\typora-user-images\1567334198496.png)
+![](1567334198496.png)
 
 ## 样本初步行为判断
 
@@ -90,15 +89,15 @@ pestdio查看导入表的API调用和一些字符串信息，来进行判断
 
 接着在strings表内发现`C:\*和.exe`这类字段，可以合理判断，可能实在c盘遍历exe文件
 
-![1567338616242](C:\Users\xiongchaochao\AppData\Roaming\Typora\typora-user-images\1567338616242.png)
+![](1567338616242.png)
 
 接着查看字符串表，看见一个明显不是系统dll的Lab01-01.dll文件，但出现一个警示语，毁坏机器的提示，结合前面遍历复制文件，难道是要复制文件占满磁盘、资源之类的恶心行为，因为不清除样本类别，所以大胆猜想
 
-![1567335966947](C:\Users\xiongchaochao\AppData\Roaming\Typora\typora-user-images\1567335966947.png)
+![](1567335966947.png)
 
-下面这个是被我忽略了的一个细节，两个DLL很像，但仔细看会发现其中一个是kernel132.dll，他将字母换成数字来混淆视线，所以根据上面出现的dll，合理推想是可能是想将这个Lab01-01.dll文件隐藏起来
+下面这个是被我忽略了的一个细节，两个DLL很像，但仔细看会发现其中一个是kernel132.dll，他将字母换成数字来混淆视线，所以根据上面出现的dll，合理推想是可能是想将这个Lab01-01.dll文件隐藏起来，既然想隐藏他的行为，那么上面那个推想应该就不成立，因为这么嚣张的操作和隐藏这个是冲突的，很容易从该exe文件暴露要隐藏的dll文件，所以只是简单复制操作
 
-![1567338923031](C:\Users\xiongchaochao\AppData\Roaming\Typora\typora-user-images\1567338923031.png)
+![](1567338923031.png)
 
 ### 小结
 
@@ -112,37 +111,29 @@ pestdio查看导入表的API调用和一些字符串信息，来进行判断
 
 2010年，年代久远的老样本
 
-![1567337229737](C:\Users\xiongchaochao\AppData\Roaming\Typora\typora-user-images\1567337229737.png)
+![](1567337229737.png)
 
 * 文件类型
 
 32位可执行文件
 
-![1567337408655](C:\Users\xiongchaochao\AppData\Roaming\Typora\typora-user-images\1567337408655.png)
-
-* 导入表和String表
-
-未有网络特征
-
-* string表内字符串
-
-有一句警示语，意思破坏机器行为，但并未发现相关API，或者说根据之前分析，疑似想占满磁盘、资源等无聊行为
-
-![1567337590464](C:\Users\xiongchaochao\AppData\Roaming\Typora\typora-user-images\1567337590464.png)
+![](1567337408655.png)
 
 * 壳信息
 
 查壳工具未查出相关特征
 
-![1567338010800](C:\Users\xiongchaochao\AppData\Roaming\Typora\typora-user-images\1567338010800.png)
+![1567338010800](1567338010800.png)
 
 导入表中函数和字符串表的字符还是挺多的，并未出现LoadLibray等脱壳API，排除加壳行为
 
-![1567338089220](C:\Users\xiongchaochao\AppData\Roaming\Typora\typora-user-images\1567338089220.png)
+![](1567338089220.png)
 
 
 
 # 小结
+
+本样本疑似将Lab01-01.dll文件隐藏成Kerne132.dll文件来进行长期驻留，下一步，分析该DLL。
 
 本exe文件暂时静态分析完毕，后面需要结合dll文件来综合进行下面的分析
 
