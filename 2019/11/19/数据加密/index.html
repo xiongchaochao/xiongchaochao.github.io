@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windows病毒分析,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="知识引入恶意代码加密的目的 隐藏网络通信数据 隐藏配置信息、字符串、代码来增加分析难度 免杀 等  简单加密凯撒密码单个字符在字母表中右移3位 XOR数据中的每个字符和密钥字符进行异或。容易出现数据中00全部被异或成密钥字符，所以常出现于shellcode中的保留NULL的XOR：当字符为00或者密钥字符时不进行异或 其他一些简单加密策略 ADD、SUB：不可逆需要同时使用 ROL、ROR：不可逆">
+<meta name="keywords" content="windows病毒分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据加密">
+<meta property="og:url" content="http://yoursite.com/2019/11/19/数据加密/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="知识引入恶意代码加密的目的 隐藏网络通信数据 隐藏配置信息、字符串、代码来增加分析难度 免杀 等  简单加密凯撒密码单个字符在字母表中右移3位 XOR数据中的每个字符和密钥字符进行异或。容易出现数据中00全部被异或成密钥字符，所以常出现于shellcode中的保留NULL的XOR：当字符为00或者密钥字符时不进行异或 其他一些简单加密策略 ADD、SUB：不可逆需要同时使用 ROL、ROR：不可逆">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/11/19/数据加密/D:%5CBlog%5Csource_posts%5C%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%5C1574218576255.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/19/数据加密/D:%5CBlog%5Csource_posts%5C%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%5C1574218604936.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/19/数据加密/D:%5CBlog%5Csource_posts%5C%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%5C1574218828576.png">
+<meta property="og:updated_time" content="2019-11-20T03:51:50.234Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据加密">
+<meta name="twitter:description" content="知识引入恶意代码加密的目的 隐藏网络通信数据 隐藏配置信息、字符串、代码来增加分析难度 免杀 等  简单加密凯撒密码单个字符在字母表中右移3位 XOR数据中的每个字符和密钥字符进行异或。容易出现数据中00全部被异或成密钥字符，所以常出现于shellcode中的保留NULL的XOR：当字符为00或者密钥字符时不进行异或 其他一些简单加密策略 ADD、SUB：不可逆需要同时使用 ROL、ROR：不可逆">
+<meta name="twitter:image" content="http://yoursite.com/2019/11/19/数据加密/D:%5CBlog%5Csource_posts%5C%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%5C1574218576255.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/11/19/数据加密/">
+
+
+
+
+
+  <title>数据加密 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/19/数据加密/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">数据加密</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-19T17:55:39+08:00">
+                2019-11-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="知识引入"><a href="#知识引入" class="headerlink" title="知识引入"></a>知识引入</h1><h2 id="恶意代码加密的目的"><a href="#恶意代码加密的目的" class="headerlink" title="恶意代码加密的目的"></a>恶意代码加密的目的</h2><ul>
+<li>隐藏网络通信数据</li>
+<li>隐藏配置信息、字符串、代码来增加分析难度</li>
+<li>免杀</li>
+<li>等</li>
+</ul>
+<h2 id="简单加密"><a href="#简单加密" class="headerlink" title="简单加密"></a>简单加密</h2><h3 id="凯撒密码"><a href="#凯撒密码" class="headerlink" title="凯撒密码"></a>凯撒密码</h3><p>单个字符在字母表中右移3位</p>
+<h3 id="XOR"><a href="#XOR" class="headerlink" title="XOR"></a>XOR</h3><p>数据中的每个字符和密钥字符进行异或。容易出现数据中00全部被异或成密钥字符，所以常出现于shellcode中的保留NULL的XOR：当字符为00或者密钥字符时不进行异或</p>
+<h3 id="其他一些简单加密策略"><a href="#其他一些简单加密策略" class="headerlink" title="其他一些简单加密策略"></a>其他一些简单加密策略</h3><ul>
+<li>ADD、SUB：不可逆需要同时使用</li>
+<li>ROL、ROR：不可逆需要同时使用</li>
+<li>ROT：原始凯瑟密码</li>
+<li>Multibyte：使用一定数量(4个或8个)字符异或一块数据</li>
+<li>链或者环：将数据分为一块一块的，前一块加密过的数据作为后一块数据的密钥</li>
+</ul>
+<h3 id="Base64"><a href="#Base64" class="headerlink" title="Base64"></a>Base64</h3><p>将二进制数据转成ascii码字符串。标准过程：使用24位数据(3字节长度)分成4个6位数据，这样得出4个索引值在一串64长度的字符串中取值。所以可以自定义修改这个64长度的字符串来自定义Base64加密效果</p>
+<h2 id="常见加密算法"><a href="#常见加密算法" class="headerlink" title="常见加密算法"></a>常见加密算法</h2><p>现代加密算法引入指数级的计算能力，让破解难度近乎不可能</p>
+<h3 id="识别方法"><a href="#识别方法" class="headerlink" title="识别方法"></a>识别方法</h3><ul>
+<li>加密常量查找：IDA插件-FindCrypt2、PEID插件：Kcypto ANALyzer</li>
+<li>IDA熵值插件</li>
+</ul>
+<h2 id="自定义加密"><a href="#自定义加密" class="headerlink" title="自定义加密"></a>自定义加密</h2><p>多种简单加密策略结合起来。</p>
+<h3 id="识别方法-1"><a href="#识别方法-1" class="headerlink" title="识别方法"></a>识别方法</h3><p>定位到输入、输出代码附近</p>
+<h2 id="解密"><a href="#解密" class="headerlink" title="解密"></a>解密</h2><h3 id="自解密"><a href="#自解密" class="headerlink" title="自解密"></a>自解密</h3><p>使用程序中自带解密函数完成解密</p>
+<h3 id="自己编写解密函数"><a href="#自己编写解密函数" class="headerlink" title="自己编写解密函数"></a>自己编写解密函数</h3><h1 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h1><h2 id="实例1"><a href="#实例1" class="headerlink" title="实例1"></a>实例1</h2><p>Lab13-01.exe</p>
+<h3 id="基础静态分析"><a href="#基础静态分析" class="headerlink" title="基础静态分析"></a>基础静态分析</h3><p>1.读取资源</p>
+<p>2.访问网页文件，网址可能被加密了</p>
+<p>3.写文件操作</p>
+<p>4.存在Base64加密算法</p>
+<pre><code>导入函数：
+LoadResource
+FindResourceA
+InternetOpenUrlA
+InternetReadFile
+WriteFile
+
+字符串：
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+http://%s/%s/</code></pre><h3 id="高级分析"><a href="#高级分析" class="headerlink" title="高级分析"></a>高级分析</h3><p>对资源数据进行异或0x3B解密</p>
+<p><img src="/2019/11/19/数据加密/D:%5CBlog%5Csource_posts%5C%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%5C1574218576255.png" alt></p>
+<p><img src="/2019/11/19/数据加密/D:%5CBlog%5Csource_posts%5C%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%5C1574218604936.png" alt></p>
+<p>解密出C2地址 <a href="http://www.practicalmalwareanalysis.com" target="_blank" rel="noopener">www.practicalmalwareanalysis.com</a></p>
+<p><img src="/2019/11/19/数据加密/D:%5CBlog%5Csource_posts%5C%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%5C1574218828576.png" alt="1574218828576"></p>
+<h1 id="补充知识"><a href="#补充知识" class="headerlink" title="补充知识"></a>补充知识</h1><h2 id="sar"><a href="#sar" class="headerlink" title="sar"></a>sar</h2><p>算数右移，保留操作数的符号位，也就是用符号位来补充</p>
+<p>eg:</p>
+<ul>
+<li>sar 1000 0000, 1 ==&gt; 1100 0000</li>
+<li>sar 1000 0000, 2 ==&gt; 1110 0000</li>
+</ul>
+<p>所以当符号位为1时，算数右移就等于逻辑右移在或上一个值，这个值从高位到低位1的数量取决于移动位数</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows病毒分析/" rel="tag"># windows病毒分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/12/隐蔽的恶意代码启动/" rel="next" title="隐蔽的恶意代码启动">
+                <i class="fa fa-chevron-left"></i> 隐蔽的恶意代码启动
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#知识引入"><span class="nav-number">1.</span> <span class="nav-text">知识引入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#恶意代码加密的目的"><span class="nav-number">1.1.</span> <span class="nav-text">恶意代码加密的目的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简单加密"><span class="nav-number">1.2.</span> <span class="nav-text">简单加密</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#凯撒密码"><span class="nav-number">1.2.1.</span> <span class="nav-text">凯撒密码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XOR"><span class="nav-number">1.2.2.</span> <span class="nav-text">XOR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他一些简单加密策略"><span class="nav-number">1.2.3.</span> <span class="nav-text">其他一些简单加密策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Base64"><span class="nav-number">1.2.4.</span> <span class="nav-text">Base64</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见加密算法"><span class="nav-number">1.3.</span> <span class="nav-text">常见加密算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#识别方法"><span class="nav-number">1.3.1.</span> <span class="nav-text">识别方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义加密"><span class="nav-number">1.4.</span> <span class="nav-text">自定义加密</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#识别方法-1"><span class="nav-number">1.4.1.</span> <span class="nav-text">识别方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解密"><span class="nav-number">1.5.</span> <span class="nav-text">解密</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#自解密"><span class="nav-number">1.5.1.</span> <span class="nav-text">自解密</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自己编写解密函数"><span class="nav-number">1.5.2.</span> <span class="nav-text">自己编写解密函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践"><span class="nav-number">2.</span> <span class="nav-text">实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实例1"><span class="nav-number">2.1.</span> <span class="nav-text">实例1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础静态分析"><span class="nav-number">2.1.1.</span> <span class="nav-text">基础静态分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级分析"><span class="nav-number">2.1.2.</span> <span class="nav-text">高级分析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#补充知识"><span class="nav-number">3.</span> <span class="nav-text">补充知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#sar"><span class="nav-number">3.1.</span> <span class="nav-text">sar</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

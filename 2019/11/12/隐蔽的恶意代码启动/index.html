@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windows病毒分析,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本篇学习重点进程注入将恶意DLL注入到另外一个正在运行的进程中 DLL注入通过创建远程线程调用LoadLibraryW来加载恶意DLL 注入流程：  获取受害进程句柄。CreateToolhelp32Snapshot、Process32First、Process32Next遍历进程获取PID，然后用OpenProcess获取进程句柄 获取LoadLibary函数地址。GetModuleHandle">
+<meta name="keywords" content="windows病毒分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="隐蔽的恶意代码启动">
+<meta property="og:url" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="本篇学习重点进程注入将恶意DLL注入到另外一个正在运行的进程中 DLL注入通过创建远程线程调用LoadLibraryW来加载恶意DLL 注入流程：  获取受害进程句柄。CreateToolhelp32Snapshot、Process32First、Process32Next遍历进程获取PID，然后用OpenProcess获取进程句柄 获取LoadLibary函数地址。GetModuleHandle">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1573556098804.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1573556154060.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1573556199700.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1573556291051.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1574060532935.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1574061573012.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1574061738220.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1574062046361.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1574073091403.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1574136800954.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1574138400961.png">
+<meta property="og:updated_time" content="2019-11-19T09:58:05.948Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="隐蔽的恶意代码启动">
+<meta name="twitter:description" content="本篇学习重点进程注入将恶意DLL注入到另外一个正在运行的进程中 DLL注入通过创建远程线程调用LoadLibraryW来加载恶意DLL 注入流程：  获取受害进程句柄。CreateToolhelp32Snapshot、Process32First、Process32Next遍历进程获取PID，然后用OpenProcess获取进程句柄 获取LoadLibary函数地址。GetModuleHandle">
+<meta name="twitter:image" content="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/1573556098804.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/">
+
+
+
+
+
+  <title>隐蔽的恶意代码启动 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/12/隐蔽的恶意代码启动/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">隐蔽的恶意代码启动</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-12T10:31:28+08:00">
+                2019-11-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="本篇学习重点"><a href="#本篇学习重点" class="headerlink" title="本篇学习重点"></a>本篇学习重点</h1><h2 id="进程注入"><a href="#进程注入" class="headerlink" title="进程注入"></a>进程注入</h2><p>将恶意DLL注入到另外一个正在运行的进程中</p>
+<h3 id="DLL注入"><a href="#DLL注入" class="headerlink" title="DLL注入"></a>DLL注入</h3><p>通过创建远程线程调用LoadLibraryW来加载恶意DLL</p>
+<p><strong>注入流程：</strong></p>
+<ol>
+<li>获取受害进程句柄。CreateToolhelp32Snapshot、Process32First、Process32Next遍历进程获取PID，然后用OpenProcess获取进程句柄</li>
+<li>获取LoadLibary函数地址。GetModuleHandle获取kernel32.dll模块句柄，然后GetProcAddress获取该模块中LoadLibraryW函数的地址(<em>Windows 系统中，LoadLibraryW 函数位于 kernel32.dll 中，并且系统核心 DLL 会加载到固定地址，所以系统中所有进程的 LoadLibraryW 函数地址是相同的</em>)</li>
+<li>将恶意DLL路径名称写入受害进程内存空间中。WriteProcessMemory </li>
+<li>创建远程线程到受害进程中。CreateRemoteThread，用到了上面获取的参数：受害进程句柄、LoadLibraryW 函数地址以及其参数(恶意DLL的名称)</li>
+</ol>
+<h3 id="直接注入"><a href="#直接注入" class="headerlink" title="直接注入"></a>直接注入</h3><p>将恶意代码注入到另外一个正在运行的进程中</p>
+<p><strong>注入流程：</strong></p>
+<ol>
+<li>获取受害进程句柄。CreateToolhelp32Snapshot、Process32First、Process32Next遍历进程获取PID，然后用OpenProcess获取进程句柄</li>
+<li>将恶意代码需要的参数数据写入远程进程内存空间中。VirtualAllocEx、WriteProcessMemory</li>
+<li>将恶意代码的指令写入远程进程内存空间中。VirtualAllocEx、WriteProcessMemory</li>
+<li>创建远程线程到受害进程中。CreateRemoteThread，用到了上面获取的参数：受害进程句柄、恶意代码启动地址以及其需要的参数数据地址</li>
+</ol>
+<h2 id="进程替换"><a href="#进程替换" class="headerlink" title="进程替换"></a>进程替换</h2><p>将恶意代码的所有可装载段替换掉傀儡进程内存空间的所有段(可以避免注入DLL引起进程崩溃情况)</p>
+<p><strong>替换流程：</strong></p>
+<ol>
+<li>创建一个挂起进程最为傀儡进程。CreateProcessA（CREATE_SUSPENDED）</li>
+<li>释放傀儡进程中映射好的内存。NtUnmapViewOfSection</li>
+<li>申请一块内存空间准备写入恶意代码。VirtualAllocEx</li>
+<li>写入恶意代码到申请的内存空间中。WriteProcessMemory</li>
+<li>设置线程入口点为我们恶意代码的内存地址。SetThreadContext</li>
+<li>恢复傀儡进程的运行。ResumeThread开始恢复运行傀儡进程执行恶意代码</li>
+</ol>
+<h2 id="钩子注入"><a href="#钩子注入" class="headerlink" title="钩子注入"></a>钩子注入</h2><p>通过拦截Windows消息来注入DLL并且调用特定的挂钩函数</p>
+<ul>
+<li>局部钩子：可以对远程进程中的特定线程进行挂钩，但通常我们都是对特定进程的主线程进行挂钩</li>
+<li>全局钩子：对同一个桌面上所有应用程序的所有线程进行挂钩，</li>
+</ul>
+<p><strong>注入流程：</strong></p>
+<ol>
+<li>获取恶意DLL的句柄。LoadLibrary</li>
+<li>获取恶意DLL导出函数地址作为钩子例程。GetProcAddress</li>
+<li>获取远程进程的主线程ID(局部)或者使用0(全局)。Thread32First、Thread32Next</li>
+<li>创建钩子。SetWindowsHookEx</li>
+</ol>
+<h2 id="Detours"><a href="#Detours" class="headerlink" title="Detours"></a>Detours</h2><p>添加新段”.detour”来创建新的导入表加载恶意DLL，并修改PE文件使导入表入口指向新的导入表位置</p>
+<h2 id="APC注入"><a href="#APC注入" class="headerlink" title="APC注入"></a>APC注入</h2><p><em>Asynchronous Process Call</em>：每个线程都有APC队列，当线程调用WaitForSingleObjectEx、WaitForMutipleObjectEx、SleepEx等候处于可警告的等待状态，就会开始处理APC</p>
+<ul>
+<li>用户模式下APC注入</li>
+</ul>
+<p><strong>注入流程：</strong></p>
+<ol>
+<li>获取受害线程句柄。OpenThread</li>
+<li>获取APC函数地址以及函数参数地址。对应参数pfnAPC、dwData</li>
+<li>将APC函数排入队列。 </li>
+</ol>
+<ul>
+<li>内核模式下APC注入：恶意驱动和Rootkit在用户空间中执行代码</li>
+</ul>
+<p><strong>注入流程：</strong></p>
+<ol>
+<li>KeInitializeApc获取一个用户模式下的APC（KAPC结构）。第6个参数非0，第七个参数(ApcMode)为1，第二个参数包含受害线程</li>
+<li>将获取的KAPC结构体排入目标线程队列中。KeInsertQueueApc</li>
+</ol>
+<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>通过练习样本学习多种恶意代码隐藏执行技术</p>
+<h1 id="分析流程"><a href="#分析流程" class="headerlink" title="分析流程"></a>分析流程</h1><ol>
+<li>基础静态分析</li>
+<li>高级动态静态结合分析</li>
+</ol>
+<h1 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h1><h2 id="实例1"><a href="#实例1" class="headerlink" title="实例1"></a>实例1</h2><p>Lab12-01.exe</p>
+<p>Lab12-01.dll</p>
+<h3 id="基础静态分析"><a href="#基础静态分析" class="headerlink" title="基础静态分析"></a>基础静态分析</h3><h4 id="Lab12-01-exe"><a href="#Lab12-01-exe" class="headerlink" title="Lab12-01.exe"></a>Lab12-01.exe</h4><p>DLL注入，可能是将Lab12-01.dll注入到explorer.exe进程中</p>
+<pre><code>导入函数：
+WriteProcessMemory
+VirtualAllocEx
+OpenProcess
+CreateRemoteThread
+LoadLibraryA
+
+字符串：
+explorer.exe
+Lab12-01.dll</code></pre><h4 id="Lab12-01-dll"><a href="#Lab12-01-dll" class="headerlink" title="Lab12-01.dll"></a>Lab12-01.dll</h4><p>线程操作</p>
+<pre><code>导入函数：
+CreateThread</code></pre><h3 id="高级分析"><a href="#高级分析" class="headerlink" title="高级分析"></a>高级分析</h3><p>枚举进程</p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1573556098804.png" alt="1573556098804"></p>
+<p>获取explorer.exe进程的句柄</p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1573556154060.png" alt="1573556154060"></p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1573556199700.png" alt="1573556199700"></p>
+<p>DLL注入当前目录下的Lab12-01.dll文件</p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1573556291051.png" alt="1573556291051"></p>
+<p>而在Lab12-01.dll文件中，入口处创建线程来进行每隔1分钟的无限弹窗</p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1574060532935.png" alt></p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>该样本利用进程注入中的DLL注入技术，将恶意DLL注入到explorer.exe进程中</p>
+<p><strong>清除病毒：</strong></p>
+<ul>
+<li>重启explorer.exe进程</li>
+<li>删除Lab12-01.exe、Lab12-01.dll文件</li>
+</ul>
+<h2 id="实例2"><a href="#实例2" class="headerlink" title="实例2"></a>实例2</h2><p>Lab12-02.exe</p>
+<h3 id="基础静态分析-1"><a href="#基础静态分析-1" class="headerlink" title="基础静态分析"></a>基础静态分析</h3><p>资源加载操作</p>
+<p>可能是对svchost.exe进程进行了进程替换技术，但是并未看见zwUnmapViewOfSection导入函数</p>
+<pre><code>导入函数：
+LoadResource
+FindResourceA
+VirtualAlloc
+WriteProcessMemory
+VirtualAllocEx
+ResumeThread
+
+字符串：
+\svchost.exe</code></pre><h3 id="高级分析-1"><a href="#高级分析-1" class="headerlink" title="高级分析"></a>高级分析</h3><p>解密资源</p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1574061573012.png" alt="1574061573012"></p>
+<p>解密之后，资源头部数据出现MZ，标准的PE文件头，我们这里可以右键选中这块内存中的数据备份到文件，稍后分析</p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1574061738220.png" alt="1574061738220"></p>
+<p>将刚解密的PE文件地址和”C:\Windows\system32\svchost.exe”作为参数传入函数</p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1574062046361.png" alt="1574062046361"></p>
+<p>1.创建一个挂起的傀儡进程svchost.exe</p>
+<p>2.卸载傀儡进程在内存中的映像。这里是通过加载ntdll.dll来调用NtUnmapViewOfSection函数的，所以导入表中没有改函数</p>
+<p>3.申请一块内存准备存放恶意代码</p>
+<p>4.将恶意代码写入申请的内存中，先写头在遍历节头表将文件偏移的数据写到虚拟地址处</p>
+<p>5.修改线程上下文结构体，将恶意代码这个PE文件中内存基址和入口点地址写进结构体</p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1574073091403.png" alt="1574073091403"></p>
+<p>至此，Lab12-02.exe基本分析完毕，主要行为就是通过进程替换来执行资源中加密过的PE文件，下面我们分析这个解密后的PE文件</p>
+<p>1.隐藏命令行</p>
+<p>2.下键盘记录的全局钩子</p>
+<p>3.当接收到退出消息后解除全局钩子</p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1574136800954.png" alt="1574136800954"></p>
+<p>将程序标题文本以及对应键盘输入输出到<em>practicalmalwareanalysis.log</em>文件中</p>
+<p><img src="/2019/11/12/隐蔽的恶意代码启动/1574138400961.png" alt="1574138400961"></p>
+<h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p>该样本通过进程替换技术将资源节中加密后的恶意PE文件加载进svchost.exe进程的内存中，接着钩子注入技术进行全局键盘记录。</p>
+<p>但是原始样本在windows7 32bit上会报错svchost.exe程序不能执行，而从内存中拷出来的PE文件是可以执行并挂钩成功的</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>【1】<a href="http://0x4c43.cn/2017/0510/dll-injection-remote-thread/" target="_blank" rel="noopener">DLL 注入之远程线程注入</a></p>
+<p>【2】<a href="https://www.cnblogs.com/HsinTsao/p/6457877.html" target="_blank" rel="noopener">Dll注入：Windows消息钩子注入</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows病毒分析/" rel="tag"># windows病毒分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/30/Windows恶意代码常见功能/" rel="next" title="Windows恶意代码常见功能">
+                <i class="fa fa-chevron-left"></i> Windows恶意代码常见功能
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/19/数据加密/" rel="prev" title="数据加密">
+                数据加密 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#本篇学习重点"><span class="nav-number">1.</span> <span class="nav-text">本篇学习重点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#进程注入"><span class="nav-number">1.1.</span> <span class="nav-text">进程注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DLL注入"><span class="nav-number">1.1.1.</span> <span class="nav-text">DLL注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#直接注入"><span class="nav-number">1.1.2.</span> <span class="nav-text">直接注入</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进程替换"><span class="nav-number">1.2.</span> <span class="nav-text">进程替换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#钩子注入"><span class="nav-number">1.3.</span> <span class="nav-text">钩子注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Detours"><span class="nav-number">1.4.</span> <span class="nav-text">Detours</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#APC注入"><span class="nav-number">1.5.</span> <span class="nav-text">APC注入</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#目标"><span class="nav-number">2.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析流程"><span class="nav-number">3.</span> <span class="nav-text">分析流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践"><span class="nav-number">4.</span> <span class="nav-text">实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实例1"><span class="nav-number">4.1.</span> <span class="nav-text">实例1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础静态分析"><span class="nav-number">4.1.1.</span> <span class="nav-text">基础静态分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Lab12-01-exe"><span class="nav-number">4.1.1.1.</span> <span class="nav-text">Lab12-01.exe</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Lab12-01-dll"><span class="nav-number">4.1.1.2.</span> <span class="nav-text">Lab12-01.dll</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级分析"><span class="nav-number">4.1.2.</span> <span class="nav-text">高级分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">4.1.3.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例2"><span class="nav-number">4.2.</span> <span class="nav-text">实例2</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础静态分析-1"><span class="nav-number">4.2.1.</span> <span class="nav-text">基础静态分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级分析-1"><span class="nav-number">4.2.2.</span> <span class="nav-text">高级分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">4.2.3.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

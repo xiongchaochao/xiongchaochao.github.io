@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="CPU配置电脑从心脏开始    参考参数 参数说明    单核性能/多核性能 由于硬件设计大部分单核心/多核心使用率不能达到100%，可以参考https://topic.expreview.com/CPU/ 上的数据   主频/睿频 单核最高运算频率/最高可以超频到多少，提现了CPU的运算能力（每秒执行的指令数量）   核心数量/线程数量 核心就是CPU/线程就是传输数据给CPU的管道   缓存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DIY电脑配置">
+<meta property="og:url" content="http://yoursite.com/2019/10/13/DIY电脑配置/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="CPU配置电脑从心脏开始    参考参数 参数说明    单核性能/多核性能 由于硬件设计大部分单核心/多核心使用率不能达到100%，可以参考https://topic.expreview.com/CPU/ 上的数据   主频/睿频 单核最高运算频率/最高可以超频到多少，提现了CPU的运算能力（每秒执行的指令数量）   核心数量/线程数量 核心就是CPU/线程就是传输数据给CPU的管道   缓存">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/10/13/DIY电脑配置/1570947265523.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/13/DIY电脑配置/D:%5CBlog%5Csource_posts%5CDIY%E7%94%B5%E8%84%91%E9%85%8D%E7%BD%AE%5Cv2-8e40577d08244f6d4262c87db71220d0_hd.jpg">
+<meta property="og:updated_time" content="2019-10-19T10:53:11.882Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DIY电脑配置">
+<meta name="twitter:description" content="CPU配置电脑从心脏开始    参考参数 参数说明    单核性能/多核性能 由于硬件设计大部分单核心/多核心使用率不能达到100%，可以参考https://topic.expreview.com/CPU/ 上的数据   主频/睿频 单核最高运算频率/最高可以超频到多少，提现了CPU的运算能力（每秒执行的指令数量）   核心数量/线程数量 核心就是CPU/线程就是传输数据给CPU的管道   缓存">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/13/DIY电脑配置/1570947265523.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/10/13/DIY电脑配置/">
+
+
+
+
+
+  <title>DIY电脑配置 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/13/DIY电脑配置/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">DIY电脑配置</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-10-13T12:13:42+08:00">
+                2019-10-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="CPU"><a href="#CPU" class="headerlink" title="CPU"></a>CPU</h1><p>配置电脑从心脏开始</p>
+<table>
+<thead>
+<tr>
+<th>参考参数</th>
+<th>参数说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单核性能/多核性能</td>
+<td>由于硬件设计大部分单核心/多核心使用率不能达到100%，可以参考<a href="https://topic.expreview.com/CPU/" target="_blank" rel="noopener">https://topic.expreview.com/CPU/</a> 上的数据</td>
+</tr>
+<tr>
+<td>主频/睿频</td>
+<td>单核最高运算频率/最高可以超频到多少，提现了CPU的运算能力（每秒执行的指令数量）</td>
+</tr>
+<tr>
+<td>核心数量/线程数量</td>
+<td>核心就是CPU/线程就是传输数据给CPU的管道</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>比内存还靠近CPU，直接影响电脑运行效率</td>
+</tr>
+<tr>
+<td>制程</td>
+<td>CPU制作工艺，制成越小可以塞进CPU的晶体管越多，性能越好</td>
+</tr>
+<tr>
+<td>TDP（功耗）</td>
+<td>值越小，产热越小还省电</td>
+</tr>
+<tr>
+<td><strong>RMB</strong></td>
+<td><strong>最核心的比较参数</strong></td>
+</tr>
+</tbody></table>
+<h2 id="散片-盒装"><a href="#散片-盒装" class="headerlink" title="散片@盒装"></a>散片@盒装</h2><p><strong>盒装</strong>：CPU厂商生产出来，加上序列号交过关税正常出售的商品，可以根据序列号查到自己这款CPU的详细信息</p>
+<p><strong>散片</strong>：CPU制造厂批量批发给电脑厂商，比较优惠然后又流到其他渠道，批发价嘛比较便宜所以散片也便宜，但没有质保，坏了卖家修不了，厂商没你的序列号也不休（基本不会坏）</p>
+<p><strong>散片造假问题：</strong>修改CPU上面的型号或者软件修改CPU参数或者用测试版：用CPU-Z查看就行</p>
+<h1 id="主板"><a href="#主板" class="headerlink" title="主板"></a>主板</h1><p>选好心脏，接着选所有配件的载体</p>
+<table>
+<thead>
+<tr>
+<th>参考参数</th>
+<th>参数说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>芯片组</td>
+<td>和CPU挂钩，根据CPU支持的接口选择对应芯片组</td>
+</tr>
+<tr>
+<td>供电项数</td>
+<td>将电源输入电力分为多条支流，这个支流的数量就是供电项数，数量越多也产热越少</td>
+</tr>
+<tr>
+<td>内存插槽数/内存标准/通道数</td>
+<td>1.多几个备用的内存插槽，如果有单个坏了可以更换               2.内存标准：直接影响内存性能，支持频速越高，内存条的选择就多了，可以选性能好的            3.通道数：至少支持双通道，直接影响电脑读写性能</td>
+</tr>
+<tr>
+<td>PCIEx16数量</td>
+<td>PCIE接口：PCIEx16表示插槽下的引脚数量，引脚越多传输数据的能力越强，性能越好。16已经是目前最多的，一般用来插显卡，如果追求高性能音效，也可以插声卡等</td>
+</tr>
+<tr>
+<td>SATA数量/M.2(NVME协议)接口数量</td>
+<td>目前主流SATA3.0（6Gb/s），M.2(NVME)接口主要插固态，读写速度比SATA和M.2(SATA)更强</td>
+</tr>
+<tr>
+<td>声道数/音频接口数量</td>
+<td>1.声道数越高越好2.音频接口数量3个的时候需要和机箱接口结合起来才可以达到对应的声道数，而如果接口数量是5个的话直接就是对应声道数，更好点</td>
+</tr>
+</tbody></table>
+<h1 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h1><table>
+<thead>
+<tr>
+<th>参考参数</th>
+<th>参数说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内存频率</td>
+<td>内存的工作速度，DDR4目前是主流，频率普遍高于DDR3</td>
+</tr>
+<tr>
+<td>内存时序</td>
+<td>内存延时时间，越低越好</td>
+</tr>
+<tr>
+<td>内存电压</td>
+<td>越低产热越小，越耐久</td>
+</tr>
+</tbody></table>
+<p>装内存条的时候一定要配合双通道或者多通道来提升电脑读写能力</p>
+<h1 id="SSD"><a href="#SSD" class="headerlink" title="SSD"></a>SSD</h1><p>固态硬盘</p>
+<table>
+<thead>
+<tr>
+<th>参考参数</th>
+<th>参数说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>接口(M.2(NVME协议)、还是SATA/M.2(SATA))</td>
+<td>M.2(NVME协议)是走PCIE通道的，也是最快的。另外两个都是走SATA通道的，性能差不多，只是一个需要数据线和供电线，而另一个直接可以插在主板上</td>
+</tr>
+<tr>
+<td>主控</td>
+<td>类似于CPU来调度整个SSD系统，目前主流的控制器有Marvell、SandForce、三星(自用)、Intel(自用)、JMicron、Indilinx(已被OCZ收购专用)、东芝等主控芯片</td>
+</tr>
+<tr>
+<td>NAND闪存</td>
+<td>所有数据以电荷形式存储在闪存颗粒中，分类为SLC（1bit/1个存储单元）、MLC(2bit/1个存储单元)、TLC(3bit/1个存储单元)，SLC成本太高，市面少有了。一般中高端选MLC就行，想降低成本选TLC也行</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>延长了芯片的使用时间，一定程度上提高读写能力。</td>
+</tr>
+<tr>
+<td>性能(顺序读写、随机读写)</td>
+<td>读取大文件是用的顺序读写，读取多个文件是4K随机读写</td>
+</tr>
+<tr>
+<td>TWP</td>
+<td>主机硬盘数据的总写入量</td>
+</tr>
+<tr>
+<td>待机功耗/运行功耗</td>
+<td>影响产热</td>
+</tr>
+<tr>
+<td>质保</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>补充知识：</p>
+<ul>
+<li>SLC识别2种信号，每个存储单元存1bit数据，所以读取速度最高，性能最好，但是成本高，需要更多颗粒来提升容量</li>
+<li>MLC识别4种信号，每个存储单元存2bit数据，对电压控制的要求适中，读取速度还行，性能不错但比不上SLC</li>
+<li>TCL识别8种信号，每个存储单元存3bit数据，对电压控制的要求最高，读取速度最低，需要启用了SLC Cache模式提升写入速度，另外由于电荷干扰，20nm工艺之后，干扰现象严重，如果数据长时间不刷新，就会出现之前三星840Evo读取旧文件掉速</li>
+</ul>
+<p><img src="/2019/10/13/DIY电脑配置/1570947265523.png" alt="1570947265523"></p>
+<ul>
+<li><p><strong>3D NAND闪存：</strong>为了增加容量，进行制程工艺提升而导致NAND的氧化层稀薄，由于电荷干扰导致相邻存储单元相互影响，可靠性变差。所以引入3D NAND，在不提高工艺，使用旧工艺的同时去堆叠更多层数来扩充容量，这样垂直扩展NAND密度就不用担心电荷干扰，并且P/E擦写次数提升，使用寿命延长</p>
+</li>
+<li><p><strong>使用寿命：</strong>MLC的P/E次数至少3000-10000次，TLC公认的P/E指标是1000-3000次，一个480G SSD全盘写入数据即消耗了一次PE，得出另一个结论容量越大，寿命越长</p>
+</li>
+<li><p><strong>目前NAND闪存生产厂商</strong>：目前全球生产NAND闪存芯片的厂商屈指可数：1三星、2东芝、3闪迪、4镁光（英睿达）、5海力士、6英特尔。其中三星市场占有率第一，东芝颗粒应用最广泛。</p>
+</li>
+<li><p><strong>CrystalDiskInfo</strong>：检测固态TBW使用情况</p>
+</li>
+<li><p><strong>OP空间：</strong>买到一块480G固态，实际上是按512G设计的，其中留有十几G的空间做保留不允许使用，直到TWP耗尽，如果出现区块损坏，用这个保留空间来做替换，已达到延长寿命</p>
+</li>
+<li><p><strong>锁盘保护</strong>：当固态硬盘知道自己快不行了，会进行锁盘只许读取，进制写入，读取不消耗TBW</p>
+</li>
+<li><p><strong>固件算法</strong>：主控将使用SSD中固件算法中的控制程序，去执行自动信号处理，耗损平衡，错误校正码（ECC），坏块管理、垃圾回收算法、与主机设备（如电脑）通信，以及执行数据加密等任务</p>
+<p>由于固件冗余存储至NAND闪存中，因此当SSD制造商发布一个更新时，需要手动更新固件来改进和扩大SSD的功能，目前具备独立固件研发的SSD厂商并不多，仅有Intel、闪迪、英睿达、浦科特、OCZ、三星等厂商。</p>
+</li>
+</ul>
+<h1 id="显示器"><a href="#显示器" class="headerlink" title="显示器"></a>显示器</h1><table>
+<thead>
+<tr>
+<th>参考参数</th>
+<th>参考说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RMB</td>
+<td>预算</td>
+</tr>
+<tr>
+<td>长宽比例</td>
+<td>21:9是电影原生比例，16:9是普遍比(目前)</td>
+</tr>
+<tr>
+<td>分辨率</td>
+<td>1K(1080P)、2K(1440P)，3K(2160P)，25寸以下的显示器推荐使用1K的分辨率，27寸推荐2K，32寸推荐4K</td>
+</tr>
+<tr>
+<td>色域</td>
+<td>72%NTSC（99%sRGB）以上就可以达到A水平，体现包含色彩丰富程度</td>
+</tr>
+<tr>
+<td>色准</td>
+<td>ΔE在8以下就行，ΔE的数值代表屏幕显示颜色是否准确</td>
+</tr>
+<tr>
+<td>刷新率</td>
+<td>每秒屏幕刷新图片数量，60HZ是流畅、144HZ是丝滑</td>
+</tr>
+<tr>
+<td>响应时间与拖影</td>
+<td>两帧画面转换之间的响应时间，低于10ms基本看不见拖影</td>
+</tr>
+<tr>
+<td>面板类型</td>
+<td>最好的面板是OLED，TN响应时间最短，IPS贵，其他都好。VA响应时间长，PLS和IPS接近</td>
+</tr>
+</tbody></table>
+<p>分辨率：左边是27寸1K分辨率，右边是27寸2K分辨率</p>
+<p><img src="/2019/10/13/DIY电脑配置/D:%5CBlog%5Csource_posts%5CDIY%E7%94%B5%E8%84%91%E9%85%8D%E7%BD%AE%5Cv2-8e40577d08244f6d4262c87db71220d0_hd.jpg" alt></p>
+<h1 id="显卡"><a href="#显卡" class="headerlink" title="显卡"></a>显卡</h1><p>可以搜索一些网站(<a href="https://www.userbenchmark.com/" target="_blank" rel="noopener">https://www.userbenchmark.com</a>)，选择对应的cpu和显卡，看具体游戏帧数数据来判断显卡能力</p>
+<table>
+<thead>
+<tr>
+<th>参考参数</th>
+<th>参考说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RMB</td>
+<td>预算</td>
+</tr>
+<tr>
+<td>游戏帧数</td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="散热"><a href="#散热" class="headerlink" title="散热"></a>散热</h1><h1 id="电源"><a href="#电源" class="headerlink" title="电源"></a>电源</h1><table>
+<thead>
+<tr>
+<th>参考参数</th>
+<th>参考说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>80plus认证</td>
+<td>输入功率和输出功率的转化率</td>
+</tr>
+<tr>
+<td>显卡和CPU额定功率</td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="机箱"><a href="#机箱" class="headerlink" title="机箱"></a>机箱</h1><table>
+<thead>
+<tr>
+<th>参考参数</th>
+<th>参考说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>尺寸</td>
+<td>能容下散热高度</td>
+</tr>
+<tr>
+<td>风道</td>
+<td></td>
+</tr>
+<tr>
+<td>风扇</td>
+<td>帮助机箱散热</td>
+</tr>
+<tr>
+<td>防尘</td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="键盘"><a href="#键盘" class="headerlink" title="键盘"></a>键盘</h1><h1 id="鼠标"><a href="#鼠标" class="headerlink" title="鼠标"></a>鼠标</h1><table>
+<thead>
+<tr>
+<th>参考参数</th>
+<th>参考说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>引擎</td>
+<td></td>
+</tr>
+<tr>
+<td>重量</td>
+<td>爬鼠100g，抓鼠80g</td>
+</tr>
+<tr>
+<td>重量配比重</td>
+<td>前后应该均衡</td>
+</tr>
+<tr>
+<td>拱背</td>
+<td>拱背较低、弧度不宜过大</td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/12/windows样本高级静态分析之追踪恶意代码的运行二/" rel="next" title="windows样本高级静态分析之追踪恶意代码的运行二">
+                <i class="fa fa-chevron-left"></i> windows样本高级静态分析之追踪恶意代码的运行二
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/14/windows样本高级动态分析/" rel="prev" title="windows样本高级动态分析">
+                windows样本高级动态分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU"><span class="nav-number">1.</span> <span class="nav-text">CPU</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#散片-盒装"><span class="nav-number">1.1.</span> <span class="nav-text">散片@盒装</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#主板"><span class="nav-number">2.</span> <span class="nav-text">主板</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存"><span class="nav-number">3.</span> <span class="nav-text">内存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SSD"><span class="nav-number">4.</span> <span class="nav-text">SSD</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#显示器"><span class="nav-number">5.</span> <span class="nav-text">显示器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#显卡"><span class="nav-number">6.</span> <span class="nav-text">显卡</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#散热"><span class="nav-number">7.</span> <span class="nav-text">散热</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#电源"><span class="nav-number">8.</span> <span class="nav-text">电源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#机箱"><span class="nav-number">9.</span> <span class="nav-text">机箱</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#键盘"><span class="nav-number">10.</span> <span class="nav-text">键盘</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#鼠标"><span class="nav-number">11.</span> <span class="nav-text">鼠标</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="CTF,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本篇文章之所以以浅入浅出为标题，其目的是提醒自己在分析过程过切入陷入复杂的细节中，以免丧失信心和兴趣，从而实现快速分析的目标。 确定目标解题 实现目标解题流程 了解赛题 确定解题思路 验证解题思路  实践过程文件：ZhonyaRing.rar 来源：看雪CTF-Q3试题（签到题） 了解赛题赛题要求：找出用户名KCTF对应的序列号 已知条件：题目给出了一组用户名和序列号，输入之后打印出【验证正确！】">
+<meta name="keywords" content="CTF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTF赛题-PC逆向之浅入浅出分析">
+<meta property="og:url" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="本篇文章之所以以浅入浅出为标题，其目的是提醒自己在分析过程过切入陷入复杂的细节中，以免丧失信心和兴趣，从而实现快速分析的目标。 确定目标解题 实现目标解题流程 了解赛题 确定解题思路 验证解题思路  实践过程文件：ZhonyaRing.rar 来源：看雪CTF-Q3试题（签到题） 了解赛题赛题要求：找出用户名KCTF对应的序列号 已知条件：题目给出了一组用户名和序列号，输入之后打印出【验证正确！】">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569496489717.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569498869592.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569499559000.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569499927176.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569500744475.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569501569253.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569501989554.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569502329722.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569502492538.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569504232370.png">
+<meta property="og:updated_time" content="2019-10-17T09:58:04.026Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CTF赛题-PC逆向之浅入浅出分析">
+<meta name="twitter:description" content="本篇文章之所以以浅入浅出为标题，其目的是提醒自己在分析过程过切入陷入复杂的细节中，以免丧失信心和兴趣，从而实现快速分析的目标。 确定目标解题 实现目标解题流程 了解赛题 确定解题思路 验证解题思路  实践过程文件：ZhonyaRing.rar 来源：看雪CTF-Q3试题（签到题） 了解赛题赛题要求：找出用户名KCTF对应的序列号 已知条件：题目给出了一组用户名和序列号，输入之后打印出【验证正确！】">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569496489717.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/">
+
+
+
+
+
+  <title>CTF赛题-PC逆向之浅入浅出分析 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CTF赛题-PC逆向之浅入浅出分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-26T18:27:54+08:00">
+                2019-09-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本篇文章之所以以浅入浅出为标题，其目的是提醒自己在分析过程过切入陷入复杂的细节中，以免丧失信心和兴趣，从而实现快速分析的目标。</p>
+<h1 id="确定目标"><a href="#确定目标" class="headerlink" title="确定目标"></a>确定目标</h1><p>解题</p>
+<h1 id="实现目标"><a href="#实现目标" class="headerlink" title="实现目标"></a>实现目标</h1><h2 id="解题流程"><a href="#解题流程" class="headerlink" title="解题流程"></a>解题流程</h2><ol>
+<li>了解赛题</li>
+<li>确定解题思路</li>
+<li>验证解题思路</li>
+</ol>
+<h2 id="实践过程"><a href="#实践过程" class="headerlink" title="实践过程"></a>实践过程</h2><p>文件：ZhonyaRing.rar</p>
+<p>来源：看雪CTF-Q3试题（签到题）</p>
+<h3 id="了解赛题"><a href="#了解赛题" class="headerlink" title="了解赛题"></a>了解赛题</h3><p><strong>赛题要求：</strong>找出用户名<code>KCTF</code>对应的序列号</p>
+<p><strong>已知条件：</strong>题目给出了一组用户名和序列号，输入之后打印出<code>【验证正确！】</code></p>
+<h3 id="确定解题思路"><a href="#确定解题思路" class="headerlink" title="确定解题思路"></a>确定解题思路</h3><ol>
+<li>找到<code>【验证正确！】</code>字符的位置，向上逆推，分析出需要满足那些条件才可以打印该字段</li>
+</ol>
+<h3 id="验证解题思路"><a href="#验证解题思路" class="headerlink" title="验证解题思路"></a>验证解题思路</h3><h4 id="思路1"><a href="#思路1" class="headerlink" title="思路1"></a>思路1</h4><h5 id="逆势而上"><a href="#逆势而上" class="headerlink" title="逆势而上"></a>逆势而上</h5><p><strong>第一个需要满足的条件</strong>：v19和v20两个地址所指向的内容必须满足16字节长度内容的相等</p>
+<pre><code class="c">while ( *(_DWORD *)v19 == *(_DWORD *)v20 )
+    {
+      v19 = (__int128 *)((char *)v19 + 4);
+      v20 += 2;
+      v12 = v21 &lt; 4;
+      v21 -= 4;
+      if ( v12 )
+      {
+        v22 = &quot;【验证正确！】\n\n&quot;;
+        goto LABEL_22;
+      }
+    }</code></pre>
+<p><strong>v20的值等于aXQxqkv处的常量</strong>，并且再往上分析并没有发现任何对v20和aXQxqkv常量进行修改，所以这就是最终输入内容经过修改后需要比对的内容，接下来分析另一个变量v19</p>
+<p><img src="/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569496489717.png" alt></p>
+<p>v19被赋值为v34的地址，接着由v34来给v16地址进行赋值，而v16的值来源于v29处，最终我们将目光锁定在了<code>v29 = 1732584193</code>处，将常量赋值给了v29。不可能两个地址都是常量赋值，中间肯定有操作将其内的数据进行了更改，我们先调试一下，确定被更改的地址是哪个？</p>
+<pre><code class="c">     v29 = 0x67452301;
+    .....
+    v16 = (char *)&amp;v29 + 1;
+     v11 = 0;
+    do
+    {
+      v18 = *(v16 - 1);
+      v16 += 4;
+      *((_BYTE *)&amp;v34 + v17) = v18;
+      *((_BYTE *)&amp;v34 + v17 + 1) = *(v16 - 4);
+      *((_BYTE *)&amp;v34 + v17 + 2) = *(v16 - 3);
+      *((_BYTE *)&amp;v34 + v17 + 3) = *(v16 - 2);
+      v17 += 4;
+    }
+    while ( v11 &lt; 0x10 );
+    v19 = &amp;v34;</code></pre>
+<p>（输入的是题中给的用户名和序列号）经过对比，这里的v20的值并未改变，而v19的值很显然从给定的常量值转化成了指定的数据，目标锁定在v29（v19的原始赋值变量）</p>
+<p><img src="/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569498869592.png" alt></p>
+<h5 id="底是谁动了我的v19？"><a href="#底是谁动了我的v19？" class="headerlink" title="底是谁动了我的v19？"></a>底是谁动了我的v19？</h5><p>对v19进行交叉引用并没有直接对其进行操作的地方。毫无疑问应该是从它周围的偏移进行修改的，范围扩展。</p>
+<p>这时v27进入我们的眼帘，并且引入了v33、sub_1011000、甚至是紧挨着aXQxqkv常量后的地址</p>
+<p><img src="/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569499559000.png" alt></p>
+<h5 id="算法？"><a href="#算法？" class="headerlink" title="算法？"></a>算法？</h5><p>首先我们还是将目光锁定在v27。跟进对其直接操作的 sub_1011000函数，跟进入后，全是一些数据运算，很明显是个算法，（以后我会了解它的），这里直接跳过，有经验的多看几眼就能分辨出，我这里在那是只能给它打上未知算法标签。</p>
+<p>接下来我们通过调试来大致看看他是在哪改变v29的</p>
+<p><img src="/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569499927176.png" alt="1569499927176"></p>
+<p>经过调试定位到<code>sub_1091000((int)&amp;v33, &amp;v27, 8u);</code>这里，执行后v29地址的值发生了改变。</p>
+<p>到这里我们确定了改变v29地址内容的算法函数，并且暂时无法往下深挖，这里我们需要借助别的信息来猜测算法的种类。</p>
+<p><img src="/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569500744475.png" alt></p>
+<p>至此我们分析道最终要的算法位置处，但是还未跟用户输入关联上，我们将目光锁定到这个算法的另一个未知参数v33上。</p>
+<p>可以看到v33经过xmmword_10B130C和xmmword_10B12F8两个变量异或128位得到的，接着被传给算法，还经过v27的赋值又传给了算法。先把这两个变量弄清</p>
+<p><img src="/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569501569253.png" alt="1569501569253"></p>
+<p>xmmword_10B130C变量是16个字符的用户名，而把序列号赋给了v35，从调试结果可以看到将输入内容转成字面意思的16进制值。</p>
+<p><img src="/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569501989554.png" alt="1569501989554"></p>
+<p><img src="/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569502329722.png" alt="1569502329722"></p>
+<p>也就是v33这个变量的值来源于用户名和序列号对应16进制值的异或，异或出字符串<code>其实我更喜欢孙坚</code>。</p>
+<p>至此我们将输入和关键算法联系上了。先将用户输入的用户名和序列号转成的16进制值异或出一个16字节字符串，接着和v27地址一起被传递给算法函数，然后将算法处理过的值赋值给v29，那么起始没有v27内容的什么事，其主要应该是作为给v29赋值的地址的存在，主要是对用户输入的内容进行了算法运算。</p>
+<p><img src="/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569502492538.png" alt="1569502492538"></p>
+<h5 id="猜算法"><a href="#猜算法" class="headerlink" title="猜算法"></a>猜算法</h5><p>算法将<code>C6 E4 CA B5 CE D2 B8 FC CF B2 BB B6 CB EF BC E1</code>转换成了<code>DA E5 23 10 06 71 95 71  4B A2 CE E2 33 2B B8 66</code></p>
+<p>一般签到题不会太难，这里应该是常用算法，直接线上MD5试试,很明显是MD5</p>
+<p><img src="/2019/09/26/CTF赛题-PC逆向之浅入浅出分析/1569504232370.png" alt="1569504232370"></p>
+<h5 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h5><p>本题的思路：将用户名和序列号对应的十六进制内容进行异或，再求MD5值看是否等于<code>DA E5 23 10 06 71 95 71  4B A2 CE E2 33 2B B8 66</code>这一串16进制值。</p>
+<p>而我们需要做的实现KCTF和序列号异或的值为<code>C6 E4 CA B5 CE D2 B8 FC CF B2 BB B6 CB EF BC E1</code>就行。因为KCTF后面是0x00填充，所以只需要满足KCTF和0xC6、0xE4、0xCA、0xB5的异或，在接上<code>CE D2 B8 FC CF B2 BB B6 CB EF BC E1</code>，即8DA79EF3CED2B8FCCFB2BBB6CBEFBCE1</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/CTF/" rel="tag"># CTF</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/18/CTF赛题-PC逆向之异常处理/" rel="next" title="CTF赛题-PC逆向之异常处理">
+                <i class="fa fa-chevron-left"></i> CTF赛题-PC逆向之异常处理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/30/windows样本高级静态分析之识别汇编中C代码结构/" rel="prev" title="windows样本高级静态分析之识别汇编中C代码结构">
+                windows样本高级静态分析之识别汇编中C代码结构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#确定目标"><span class="nav-number">1.</span> <span class="nav-text">确定目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现目标"><span class="nav-number">2.</span> <span class="nav-text">实现目标</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#解题流程"><span class="nav-number">2.1.</span> <span class="nav-text">解题流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实践过程"><span class="nav-number">2.2.</span> <span class="nav-text">实践过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#了解赛题"><span class="nav-number">2.2.1.</span> <span class="nav-text">了解赛题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#确定解题思路"><span class="nav-number">2.2.2.</span> <span class="nav-text">确定解题思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证解题思路"><span class="nav-number">2.2.3.</span> <span class="nav-text">验证解题思路</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#思路1"><span class="nav-number">2.2.3.1.</span> <span class="nav-text">思路1</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#逆势而上"><span class="nav-number">2.2.3.1.1.</span> <span class="nav-text">逆势而上</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#底是谁动了我的v19？"><span class="nav-number">2.2.3.1.2.</span> <span class="nav-text">底是谁动了我的v19？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#算法？"><span class="nav-number">2.2.3.1.3.</span> <span class="nav-text">算法？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#猜算法"><span class="nav-number">2.2.3.1.4.</span> <span class="nav-text">猜算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#小结"><span class="nav-number">2.2.3.1.5.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

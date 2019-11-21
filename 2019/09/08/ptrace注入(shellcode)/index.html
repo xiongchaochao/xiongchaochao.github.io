@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android注入,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="引言继ptrace注入之dlopen/dlsym注入第三方so库到远程进程中后，本次探索的是shellcode 的注入 概述shellcode注入是通过将dlopen/dlsym库函数的操作放在了shellcode中，注入函数只是通过对远程进程进行内存申请，接着修改shellcode 中有关dlopen/dlsym库函数使用到的参数，然后直接将shellcode注入到远程进程申请的空间中，通过修改">
+<meta name="keywords" content="Android注入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ptrace注入(shellcode)">
+<meta property="og:url" content="http://yoursite.com/2019/09/08/ptrace注入(shellcode)/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="引言继ptrace注入之dlopen/dlsym注入第三方so库到远程进程中后，本次探索的是shellcode 的注入 概述shellcode注入是通过将dlopen/dlsym库函数的操作放在了shellcode中，注入函数只是通过对远程进程进行内存申请，接着修改shellcode 中有关dlopen/dlsym库函数使用到的参数，然后直接将shellcode注入到远程进程申请的空间中，通过修改">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-10-28T11:08:19.242Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ptrace注入(shellcode)">
+<meta name="twitter:description" content="引言继ptrace注入之dlopen/dlsym注入第三方so库到远程进程中后，本次探索的是shellcode 的注入 概述shellcode注入是通过将dlopen/dlsym库函数的操作放在了shellcode中，注入函数只是通过对远程进程进行内存申请，接着修改shellcode 中有关dlopen/dlsym库函数使用到的参数，然后直接将shellcode注入到远程进程申请的空间中，通过修改">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/08/ptrace注入(shellcode)/">
+
+
+
+
+
+  <title>ptrace注入(shellcode) | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/08/ptrace注入(shellcode)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ptrace注入(shellcode)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-08T17:28:58+08:00">
+                2019-09-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>继ptrace注入之dlopen/dlsym注入第三方so库到远程进程中后，本次探索的是shellcode 的注入</p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>shellcode注入是通过将dlopen/dlsym库函数的操作放在了shellcode中，注入函数只是通过对远程进程进行内存申请，接着修改shellcode 中有关dlopen/dlsym库函数使用到的参数，然后直接将shellcode注入到远程进程申请的空间中，通过修改pc寄存器的方式来执行shellcode 处的代码</p>
+<h1 id="注入算法"><a href="#注入算法" class="headerlink" title="注入算法"></a>注入算法</h1><p>【1】在shellcode中编写好dlopen、dlsym函数的调用来加载so库和执行函数，但是需要将参数地址、函数地址、寄存器地址先随便填写一些值为我们真实的地址保留</p>
+<p>【2】附加远程进程、保存此刻寄存器的数据，为后面恢复远程进程的继续执行准备</p>
+<p>【3】申请内存空间，选好shellcode存放的具体位置，准备存放shellcode和参数数据</p>
+<p>【4】计算本地库函数对应到远程进程中的库函数地址，填充到shellcdoe中的参数中去。计算好库函数参数、寄存器存值相对shellcode起始位置的偏移再加上远程进程中shellcode存放的起始位置，得到的结果就是远程进程的内存空间中这些参数存放的位置，将这些地址填充到shellcode的参数中去</p>
+<p>【5】设置寄存器的值来让执行库函数</p>
+<p>【6】恢复寄存器的值让远程进程继续正常执行</p>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p><strong>shellcode代码</strong></p>
+<pre><code class="assembly">@定义了存放库函数参数地址、函数地址、寄存器地址的全局变量，为的是在注入代码中可以获取变量地址并传入数据
+.global _dlopen_addr_s
+.global _dlopen_param1_s
+.global _dlopen_param2_s
+
+.global _dlsym_addr_s
+.global _dlsym_param2_s
+
+.global _dlclose_addr_s
+
+.global _inject_start_s
+.global _inject_end_s
+
+.global _inject_function_param_s
+
+.global _saved_cpsr_s
+.global _saved_r0_pc_s
+
+.data
+
+_inject_start_s:
+    @ debug loop
+3:
+    @sub r1, r1, #0
+    @B 3b
+
+    @ dlopen，加载第三方so库
+    ldr r1, _dlopen_param2_s
+    ldr r0, _dlopen_param1_s
+    ldr r3, _dlopen_addr_s
+    blx r3
+    subs r4, r0, #0
+    beq    2f
+
+    @dlsym，根据提供的库函数名称，搜索so库中的函数位置
+    ldr r1, _dlsym_param2_s
+    ldr r3, _dlsym_addr_s
+    blx r3
+    subs r3, r0, #0
+    beq 1f
+
+    @call 调用注入库中的函数
+    ldr r0, _inject_function_param_s
+    blx r3
+    subs r0, r0, #0
+    beq 2f
+
+1:
+    @dlclose，如果没有在被使用就卸载动态库
+    mov r0, r4
+    ldr r3, _dlclose_addr_s
+    blx r3
+
+2:
+    @restore context，恢复成注入前的指令执行状态
+    ldr r1, _saved_cpsr_s
+    msr cpsr_cf, r1
+    ldr sp, _saved_r0_pc_s
+    ldmfd sp, {r0-pc}
+
+_dlopen_addr_s:
+.word 0x11111111
+
+_dlopen_param1_s:
+.word 0x11111111
+
+_dlopen_param2_s:
+.word 0x2
+
+_dlsym_addr_s:
+.word 0x11111111
+
+_dlsym_param2_s:
+.word 0x11111111
+
+_dlclose_addr_s:
+.word 0x11111111
+
+_inject_function_param_s:
+.word 0x11111111
+
+_saved_cpsr_s:
+.word 0x11111111
+
+_saved_r0_pc_s:
+.word 0x11111111
+
+_inject_end_s:
+
+.space 0x400, 0
+
+.end</code></pre>
+<p><strong>注入函数</strong>inject_remote_process_shellcode，可以放在inject_remote_process函数的下面</p>
+<pre><code class="c">//宏定义了一个远程进程计算
+#define REMOTE_ADDR( addr, local_base, remote_base ) ( (uint32_t)(addr) + (uint32_t)(remote_base) - (uint32_t)(local_base) ) 
+
+
+/*************************************************
+  Description:    通过shellcode方式ptrace注入so模块到远程进程中
+  Input:          pid表示远程进程的ID，LibPath为被远程注入的so模块路径，FunctionName为远程注入的模块后调用的函数
+                  FuncParameter指向被远程调用函数的参数（若传递字符串，需要先将字符串写入到远程进程空间中），NumParameter为参数的个数
+  Return:         返回0表示注入成功，返回-1表示失败
+*************************************************/ 
+    int iRet = -1;
+    struct pt_regs CurrentRegs, OriginalRegs;  // CurrentRegs表示远程进程中当前的寄存器值，OriginalRegs存储注入前的寄存器值，方便恢复
+    void *mmap_addr, *dlopen_addr, *dlsym_addr, *dlclose_addr, *dlerror_addr;   // 远程进程中需要调用函数的地址
+    void *RemoteMapMemoryAddr, *RemoteModuleAddr, *RemoteModuleFuncAddr; // RemoteMapMemoryAddr为远程进程空间中映射的内存基址，RemoteModuleAddr为远程注入的so模块加载基址，RemoteModuleFuncAddr为注入模块中需要调用的函数地址
+    long parameters[10];  
+    int i;
+    uint32_t code_length;
+
+    uint8_t *dlopen_param1_ptr, *dlsym_param2_ptr, *saved_r0_pc_ptr, *inject_param_ptr, *remote_code_start_ptr, *local_code_start_ptr, *local_code_end_ptr;
+
+    //导入shellcode中的全局变量
+    extern uint32_t _dlopen_addr_s, _dlopen_param1_s, _dlopen_param2_s, _dlsym_addr_s, _dlsym_param2_s, _dlclose_addr_s, _inject_start_s, _inject_end_s, _inject_function_param_s, _saved_cpsr_s, _saved_r0_pc_s;
+
+    // Attach远程进程
+    if (ptrace_attach(pid) == -1)
+        return iRet;
+
+    // 获取远程进程的寄存器值，保存下来为恢复做准备
+    if (ptrace_getregs(pid, &amp;CurrentRegs) == -1)
+    {
+        ptrace_detach(pid);
+        return iRet;
+    }
+    // 保存远程进程空间中当前的上下文寄存器环境
+    memcpy(&amp;OriginalRegs, &amp;CurrentRegs, sizeof(CurrentRegs)); 
+
+    LOGD(&quot;ARM_r0:0x%lx, ARM_r1:0x%lx, ARM_r2:0x%lx, ARM_r3:0x%lx, ARM_r4:0x%lx, ARM_r5:0x%lx, ARM_r6:0x%lx, ARM_r7:0x%lx, ARM_r8:0x%lx, ARM_r9:0x%lx, ARM_r10:0x%lx, ARM_ip:0x%lx, ARM_sp:0x%lx, ARM_lr:0x%lx, ARM_pc:0x%lx&quot;, \
+        CurrentRegs.ARM_r0, CurrentRegs.ARM_r1, CurrentRegs.ARM_r2, CurrentRegs.ARM_r3, CurrentRegs.ARM_r4, CurrentRegs.ARM_r5, CurrentRegs.ARM_r6, CurrentRegs.ARM_r7, CurrentRegs.ARM_r8, CurrentRegs.ARM_r9, CurrentRegs.ARM_r10, CurrentRegs.ARM_ip, CurrentRegs.ARM_sp, CurrentRegs.ARM_lr, CurrentRegs.ARM_pc);
+
+    // 获取mmap函数在远程进程中的地址
+    mmap_addr = GetRemoteFuncAddr(pid, libc_path, (void *)mmap);
+    LOGD(&quot;mmap RemoteFuncAddr:0x%lx&quot;, (long)mmap_addr);
+
+    // 设置mmap的参数
+    // void *mmap(void *start, size_t length, int prot, int flags, int fd, off_t offsize);
+    parameters[0] = 0;  // 设置为NULL表示让系统自动选择分配内存的地址    
+    parameters[1] = 0x4000; // 映射内存的大小    
+    parameters[2] = PROT_READ | PROT_WRITE | PROT_EXEC;  // 表示映射内存区域可读可写可执行   
+    parameters[3] =  MAP_ANONYMOUS | MAP_PRIVATE; // 建立匿名映射    
+    parameters[4] = 0; //  若需要映射文件到内存中，则为文件的fd  
+    parameters[5] = 0; //文件映射偏移量     
+
+    // 调用远程进程的mmap函数，建立远程进程的内存映射
+    if (ptrace_call(pid, (long)mmap_addr, parameters, 6, &amp;CurrentRegs) == -1)
+    {
+        LOGD(&quot;Call Remote mmap Func Failed&quot;);
+        ptrace_detach(pid);
+        return iRet;
+    }
+
+    // 获取mmap函数执行后的返回值，也就是内存映射的起始地址
+    RemoteMapMemoryAddr = (void *)ptrace_getret(&amp;CurrentRegs);
+    LOGD(&quot;Remote Process Map Memory Addr:0x%lx&quot;, (long)RemoteMapMemoryAddr);
+
+    // 分别获取dlopen、dlsym、dlclose等函数的地址
+    dlopen_addr = GetRemoteFuncAddr(pid, linker_path, (void *)dlopen);
+    dlsym_addr = GetRemoteFuncAddr(pid, linker_path, (void *)dlsym);
+    dlclose_addr = GetRemoteFuncAddr(pid, linker_path, (void *)dlclose);
+    dlerror_addr = GetRemoteFuncAddr(pid, linker_path, (void *)dlerror);
+
+    LOGD(&quot;dlopen RemoteFuncAddr:0x%lx&quot;, (long)dlopen_addr);
+    LOGD(&quot;dlsym RemoteFuncAddr:0x%lx&quot;, (long)dlsym_addr);
+    LOGD(&quot;dlclose RemoteFuncAddr:0x%lx&quot;, (long)dlclose_addr);
+    LOGD(&quot;dlerror RemoteFuncAddr:0x%lx&quot;, (long)dlerror_addr);
+
+    //将这几个库函数所对应的远程进程中的函数地址写到汇编代码中的变量中
+    _dlopen_addr_s = (uint32_t)dlopen_addr;
+    _dlsym_addr_s = (uint32_t)dlsym_addr;
+    _dlclose_addr_s = (uint32_t)dlclose_addr;
+
+    remote_code_start_ptr = RemoteMapMemoryAddr + 0x1000; // 远程进程中存放shellcode代码的起始地址，这里需要将起始位置向后偏移一些位置，否则会因为sp指针的设定而引发段错误(signal 11)
+    local_code_start_ptr = (uint8_t *)&amp;_inject_start_s;     // 本地进程中shellcode的起始地址
+    local_code_end_ptr = (uint8_t *)&amp;_inject_end_s;          // 本地进程中shellcode的结束地址
+    LOGD(&quot;Inject Code Start:0x%x, end:0x%x&quot;, (int)local_code_start_ptr, (int)local_code_end_ptr);
+
+    // 计算shellcode中一些变量的存放起始地址,这些地址是我们一会将参数数据传入得地址，稍微向后加一些偏移量(MAX_PATH)没有关系的,但是代码长度和数据偏移总长度不要超过我们注入注入时的数据长度
+    code_length = (uint32_t)&amp;_inject_end_s - (uint32_t)&amp;_inject_start_s;
+    LOGD(&quot;Inject Code length: %d&quot;, code_length);
+    dlopen_param1_ptr = local_code_start_ptr + code_length;// + 0x20;
+    LOGD(&quot;local dlopen first parameter addr is 0x%x&quot;, dlopen_param1_ptr);
+    dlsym_param2_ptr = dlopen_param1_ptr + MAX_PATH;
+    LOGD(&quot;local dlsym second parameter addr is 0x%x&quot;, dlsym_param2_ptr);
+    saved_r0_pc_ptr = dlsym_param2_ptr + MAX_PATH;
+    inject_param_ptr = saved_r0_pc_ptr + MAX_PATH;
+
+    // 写入dlopen的参数LibPath到我们上一步算好的本地地址，然后再计算出远程进程中
+    strcpy( dlopen_param1_ptr, LibPath );
+    _dlopen_param1_s = REMOTE_ADDR( dlopen_param1_ptr, local_code_start_ptr, remote_code_start_ptr );
+    LOGD(&quot;Remote dlopen first parameter addr is 0x%x&quot;, _dlopen_param1_s);
+
+    // 写入dlsym的第二个参数，需要调用的函数名称
+    strcpy( dlsym_param2_ptr, FunctionName );
+    _dlsym_param2_s = REMOTE_ADDR( dlsym_param2_ptr, local_code_start_ptr, remote_code_start_ptr );
+    LOGD(&quot;Remote dlsym second parameter addr is 0x%x&quot;, _dlsym_param2_s);
+
+    //保存cpsr寄存器
+    _saved_cpsr_s = OriginalRegs.ARM_cpsr;
+
+    //保存r0-pc寄存器
+    memcpy( saved_r0_pc_ptr, &amp;(OriginalRegs.ARM_r0), 16 * 4 ); // r0 ~ r15
+    _saved_r0_pc_s = REMOTE_ADDR( saved_r0_pc_ptr, local_code_start_ptr, remote_code_start_ptr );
+    LOGD(&quot;Remote r0-pc registers addr is 0x%x&quot;, _saved_r0_pc_s);
+
+    memcpy( inject_param_ptr, FuncParameter, NumParameter );
+    _inject_function_param_s = REMOTE_ADDR( inject_param_ptr, local_code_start_ptr, remote_code_start_ptr );
+    LOGD(&quot;My fuction parameter addr is 0x%x&quot;, _inject_function_param_s);
+
+    //将我们的shellcode还有参数数据都写入到远程进程的内存空间中去
+    ptrace_writedata( pid, remote_code_start_ptr, local_code_start_ptr, 0x400 );
+    LOGD(&quot;wriate data complete&quot;);
+
+    //设置寄存器开始执行shellcode
+    memcpy( &amp;CurrentRegs, &amp;OriginalRegs, sizeof(CurrentRegs) );
+    LOGD(&quot;cpoy register addr complete&quot;);
+    //如果将sp堆栈指针指向shellcode代码的位置，就需要将shellcode位置向后申请的内存空间的后面推移，否则sp可能会指向申请的内存空的前面的位置，造成段错误(signal 11)
+    //CurrentRegs.ARM_sp = (long)remote_code_start_ptr;
+    CurrentRegs.ARM_pc = (long)remote_code_start_ptr;
+    ptrace_setregs( pid, &amp;CurrentRegs );
+    LOGD(&quot;set register addr complete&quot;);
+    ptrace_detach( pid );
+    LOGD(&quot;injected complete&quot;);
+    return 0;    
+}</code></pre>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>【1】在计算库函数的偏移地址时，需要记住的是同一个库中的库函数它在不同进程中的偏移是相同的</p>
+<p>【2】我们计算远程进程中参数地址的时候，我们是根据相对shellcode初始位置偏移来算的</p>
+<p>【3】如果注释掉堆栈指针sp指向shellcode地址的指令，我们就可以不用将shellcode在申请的内存空间中往后移动，因为不用担心sp指针肯能会指向我们我们未申请的内存区域</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android注入/" rel="tag"># Android注入</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/08/TX脱壳/" rel="next" title="TX脱壳">
+                <i class="fa fa-chevron-left"></i> TX脱壳
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/08/inline_Hook/" rel="prev" title="inline-hook">
+                inline-hook <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">2.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注入算法"><span class="nav-number">3.</span> <span class="nav-text">注入算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">4.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">5.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

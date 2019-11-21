@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android注入,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="引言本篇文章具体从代码中做到如何进行ptrace注入，为实现将外挂模块注入到游戏进程中破解手游2048做准备 技术概述主要通过系统调用函数ptrace的功能：  通过shellcode注入模块到远程进程中 利用ptrace远程调用dlopen/dlsym将动态链接库注入到远程进程中并执行相应操作。  下面也是主要实现dlopen/dlsym来进行so库的注入和函数的调用 代码实现头文件：声明函数">
+<meta name="keywords" content="Android注入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ptrace注入">
+<meta property="og:url" content="http://yoursite.com/2019/09/08/ptrace注入/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="引言本篇文章具体从代码中做到如何进行ptrace注入，为实现将外挂模块注入到游戏进程中破解手游2048做准备 技术概述主要通过系统调用函数ptrace的功能：  通过shellcode注入模块到远程进程中 利用ptrace远程调用dlopen/dlsym将动态链接库注入到远程进程中并执行相应操作。  下面也是主要实现dlopen/dlsym来进行so库的注入和函数的调用 代码实现头文件：声明函数">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/ptrace注入/1559812661631.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/ptrace注入/1559823892063.png">
+<meta property="og:updated_time" content="2019-10-28T11:10:53.659Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ptrace注入">
+<meta name="twitter:description" content="引言本篇文章具体从代码中做到如何进行ptrace注入，为实现将外挂模块注入到游戏进程中破解手游2048做准备 技术概述主要通过系统调用函数ptrace的功能：  通过shellcode注入模块到远程进程中 利用ptrace远程调用dlopen/dlsym将动态链接库注入到远程进程中并执行相应操作。  下面也是主要实现dlopen/dlsym来进行so库的注入和函数的调用 代码实现头文件：声明函数">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/08/ptrace注入/1559812661631.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/08/ptrace注入/">
+
+
+
+
+
+  <title>ptrace注入 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/08/ptrace注入/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ptrace注入</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-08T17:28:58+08:00">
+                2019-09-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>本篇文章具体从代码中做到如何进行ptrace注入，为实现将外挂模块注入到游戏进程中破解手游2048做准备</p>
+<h1 id="技术概述"><a href="#技术概述" class="headerlink" title="技术概述"></a>技术概述</h1><p>主要通过系统调用函数ptrace的功能：</p>
+<ol>
+<li>通过shellcode注入模块到远程进程中</li>
+<li>利用ptrace远程调用dlopen/dlsym将动态链接库注入到远程进程中并执行相应操作。</li>
+</ol>
+<p>下面也是主要实现dlopen/dlsym来进行so库的注入和函数的调用</p>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p><strong>头文件</strong>：声明函数</p>
+<pre><code class="c++">
+/**********************************
+ *  FileName:   ptraceInject.h
+ *  Decription: ptrace注入
+ * ********************************/
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;       
+#include &lt;unistd.h&gt; 
+
+/* 功能1：通过ptrace远程调用dlopen/dlsym方式注入模块到远程进程 */
+int inject_remote_process(pid_t pid, char *LibPath, char *FunctionName, long *FuncParameter, long NumParameter);
+
+/* 功能2：通过shellcode方式注入模块到远程进程*/
+int inject_remote_process_shellcode(pid_t pid, char *LibPath, char *FunctionName, long *FuncParameter, long NumParameter);    </code></pre>
+<p><strong>调试用到的日志工具</strong>：<code>PrintLog.h</code></p>
+<pre><code class="c++">#ifndef _ANDROID_LOG_PRINT_H_
+#define _ANDROID_LOG_PRINT_H_
+
+#define  MAX_PATH 0x100
+
+#include &lt;android/log.h&gt;
+//如果不想打印日志可以注释这行宏定义
+#define IS_DEBUG
+//如果宏定义了IS_DEBUG，那么下面就会宏定义下面这些日志打印函数
+#ifdef IS_DEBUG
+
+#define LOG_TAG (&quot;INJECT&quot;)
+
+#define LOGV(...) ((void)__android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__))
+
+#define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG  , LOG_TAG, __VA_ARGS__))
+
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO   , LOG_TAG, __VA_ARGS__))
+
+#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN   , LOG_TAG, __VA_ARGS__))
+
+#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR  , LOG_TAG, __VA_ARGS__))
+
+#else
+
+#define LOGV(LOG_TAG, ...) NULL
+
+#define LOGD(LOG_TAG, ...) NULL
+
+#define LOGI(LOG_TAG, ...) NULL
+
+#define LOGW(LOG_TAG, ...) NULL
+
+#define LOGE(LOG_TAG, ...) NULL
+
+#endif
+
+#endif</code></pre>
+<p><strong>源代码</strong>:ptraceInject.c</p>
+<pre><code class="c++">/*******************************
+ *  FileName: ptraceInject.c
+ *  Description:       ptrace注入
+ * *****************************/
+
+
+#include &lt;stdio.h&gt;    
+#include &lt;stdlib.h&gt;    
+#include &lt;sys/user.h&gt;    
+#include &lt;asm/ptrace.h&gt;    
+#include &lt;sys/ptrace.h&gt;    
+#include &lt;sys/wait.h&gt;    
+#include &lt;sys/mman.h&gt;    
+#include &lt;dlfcn.h&gt;    
+#include &lt;dirent.h&gt;    
+#include &lt;unistd.h&gt;    
+#include &lt;string.h&gt;    
+#include &lt;elf.h&gt; 
+#include &lt;PrintLog.h&gt; 
+#include &lt;ptraceInject.h&gt;
+
+#define CPSR_T_MASK     ( 1u &lt;&lt; 5 )
+
+const char *libc_path = &quot;/system/lib/libc.so&quot;;    
+const char *linker_path = &quot;/system/bin/linker&quot;;
+
+
+/***************************
+ *  Description:    使用ptrace Attach附加到指定进程,发送SIGSTOP信号给指定进程让其停止下来并对其进行跟踪。
+ *                  但是被跟踪进程(tracee)不一定会停下来，因为同时attach和传递SIGSTOP可能会将SIGSTOP丢失。
+ *                  所以需要waitpid(2)等待被跟踪进程被停下
+ *  Input:          pid表示远程进程的ID
+ *  Output:         无
+ *  Return:         返回0表示attach成功，返回-1表示失败
+ *  Others:         无
+ * ************************/
+int ptrace_attach(pid_t pid)
+{
+    int status = 0;
+    if (ptrace(PTRACE_ATTACH, pid, NULL, NULL) &lt; 0)
+    {
+        LOGD(&quot;ptrace attach error, pid:%d&quot;, pid);
+        return -1;
+    }
+
+    LOGD(&quot;attach process pid:%d&quot;, pid);
+    waitpid(pid, &amp;status , WUNTRACED);
+    return 0;
+}
+
+/*************************************************
+ *   Description:    使用ptrace detach指定进程,完成对指定进程的跟踪操作后，使用该参数即可解除附加
+ *   Input:          pid表示远程进程的ID
+ *   Output:         无
+ *   Return:         返回0表示detach成功，返回-1表示失败
+ *   Others:         无
+ * ***********************************************/
+int ptrace_detach(pid_t pid)
+{
+    if (ptrace(PTRACE_DETACH, pid, NULL, 0) &lt; 0)
+    {
+        LOGD(&quot;detach process error, pid:%d&quot;, pid);
+        return -1;
+    }
+    LOGD(&quot;detach process pid:%d&quot;, pid);  
+    return 0; 
+}
+
+/*************************************************
+ *  Description:    ptrace使远程进程继续运行
+ *  Input:          pid表示远程进程的ID
+ *  Output:         无
+ *  Return:         返回0表示continue成功，返回-1表示失败
+ *  Others:         无
+ * ***********************************************/
+int ptrace_continue(pid_t pid)
+{
+    if (ptrace(PTRACE_CONT, pid, NULL, NULL) &lt; 0)
+    {
+        LOGD(&quot;ptrace cont error, pid:%d&quot;, pid);
+        return -1;
+    }
+    return 0;
+}
+
+/*************************************************
+ *  Description:    使用ptrace获取远程进程的寄存器值
+ *  Input:          pid表示远程进程的ID，regs为pt_regs结构，存储了寄存器值 
+ *  Output:         无
+ *  Return:         返回0表示获取寄存器成功，返回-1表示失败
+ *  Others:         无
+ * ***********************************************/
+int ptrace_getregs(pid_t pid, struct pt_regs *regs)
+{
+    if (ptrace(PTRACE_GETREGS, pid, NULL, regs) &lt; 0)
+    {
+        LOGD(&quot;Get Regs error, pid:%d&quot;, pid);
+        return -1;
+    }
+    return 0;
+}
+
+/*************************************************
+ *  Description:    使用ptrace设置远程进程的寄存器值
+ *  Input:          pid表示远程进程的ID，regs为pt_regs结构，存储需要修改的寄存器值
+ *  Output:         无
+ *  Return:         返回0表示设置寄存器成功，返回-1表示失败
+ * ***********************************************/
+int ptrace_setregs(pid_t pid, struct pt_regs *regs)
+{
+    if (ptrace(PTRACE_SETREGS, pid, NULL, regs) &lt; 0)
+    {
+        LOGD(&quot;Set Regs error, pid:%d&quot;, pid);
+        return -1;
+    }
+    return 0;
+}
+
+/*************************************************
+ *  Description:    获取返回值，ARM处理器中返回值存放在ARM_r0寄存器中
+ *  Input:          regs存储远程进程当前的寄存器值
+ *  Return:         在ARM处理器下返回r0寄存器值 
+ * ***********************************************/
+long ptrace_getret(struct pt_regs * regs)
+{
+    return regs-&gt;ARM_r0;
+}
+
+/*************************************************
+ *  Description:    获取当前执行代码的地址，ARM处理器下存放在ARM_pc中
+ *  Input:          regs存储远程进程当前的寄存器值
+ *  Return:         在ARM处理器下返回pc寄存器值
+ * **********************************************/
+long ptrace_getpc(struct pt_regs * regs)    
+{       
+    return regs-&gt;ARM_pc;    
+} 
+
+/*************************************************
+ *   Description:    使用ptrace从远程进程内存中读取数据
+ *   Input:          pid表示远程进程的ID，pSrcBuf表示从远程进程读取数据的内存地址
+ *                   pDestBuf表示用于存储读取出数据的地址，size表示读取数据的大小
+ *   Return:         返回0表示读取数据成功
+ *   other:          这里的*_t类型是typedef定义一些基本类型的别名，用于跨平台。例如
+ *                   uint8_t表示无符号8位也就是无符号的char类型
+ * **********************************************/
+int ptrace_readdata(pid_t pid, uint8_t *pSrcBuf, uint8_t *pDestBuf, uint32_t size)
+{
+    uint32_t nReadCount = 0;
+    uint32_t nRemainCount = 0;
+    uint8_t *pCurSrcBuf = pSrcBuf;
+    uint8_t *pCurDestBuf = pDestBuf;
+    long lTmpBuf = 0;
+    uint32_t i = 0; 
+
+    //每次读取4字节数据
+    nReadCount = size / sizeof(long);
+    nRemainCount = size % sizeof(long);
+    for (i = 0; i &lt; nReadCount; i++)
+    {
+        lTmpBuf = ptrace(PTRACE_PEEKTEXT, pid, pCurSrcBuf, 0);
+        memcpy(pCurDestBuf, (char *)(&amp;lTmpBuf), sizeof(long));
+        pCurSrcBuf += sizeof(long);
+        pCurDestBuf += sizeof(long);
+    }
+    //当最后读取的字节不足4字节时调用
+    if ( nRemainCount &gt; 0 )
+    {
+        lTmpBuf = ptrace(PTRACE_PEEKTEXT, pid, pCurSrcBuf, 0);
+        memcpy(pCurDestBuf, (char *)(&amp;lTmpBuf), nRemainCount);
+    }
+    return 0;
+}
+
+/*************************************************
+ *  Description:    使用ptrace将数据写入到远程进程空间中
+ *  Input:          pid表示远程进程的ID，pWriteAddr表示写入数据到远程进程的内存地址
+ *                  pWriteData用于存储写入数据的地址，size表示写入数据的大小
+ *  Return:         返回0表示写入数据成功，返回-1表示写入数据失败 
+ * ***********************************************/
+int ptrace_writedata(pid_t pid, uint8_t *pWriteAddr, uint8_t *pWriteData, uint32_t size)
+{
+    uint32_t nWriteCount = 0;
+    uint32_t nRemainCount = 0;
+    uint8_t *pCurSrcBuf = pWriteData;
+    uint8_t *pCurDestBuf = pWriteAddr;
+    long lTmpBuf = 0;
+    uint32_t i = 0;
+
+    nWriteCount = size / sizeof(long);
+    nRemainCount = size % sizeof(long);
+
+    //数据以sizeof(long)字节大小为单位写入到远程进程内存空间中
+    for (i = 0; i &lt; nWriteCount; i ++)
+    {
+        memcpy((void *)(&amp;lTmpBuf), pCurSrcBuf, sizeof(long));
+        if (ptrace(PTRACE_POKETEXT, pid, pCurDestBuf, lTmpBuf) &lt; 0)
+        {
+            LOGD(&quot;Write Remote Memory error, MemoryAddr:0x%lx&quot;, (long)pCurDestBuf);
+            return -1;
+        }
+        pCurSrcBuf += sizeof(long);
+        pCurDestBuf += sizeof(long);
+    }
+    if (nRemainCount &gt; 0)
+    {
+        //lTmpBuf = ptrace(PTRACE_PEEKTEXT, pid, pCurDestBuf, NULL);
+        memcpy((void *)(&amp;lTmpBuf), pCurSrcBuf, nRemainCount);
+        if (ptrace(PTRACE_POKETEXT, pid, pCurDestBuf, lTmpBuf) &lt; 0)
+        {
+            LOGD(&quot;Write Remote Memory error, MemoryAddr:0x%lx&quot;, (long)pCurDestBuf);
+            return -1;  
+        }
+    }
+    return 0;
+}
+
+/*************************************************
+ *  Description:    使用ptrace远程call函数
+ *  Input:          pid表示远程进程的ID，ExecuteAddr为远程进程函数的地址
+ *                  parameters为函数参数的地址，regs为远程进程call函数前的寄存器环境
+ *  Return:         返回0表示call函数成功，返回-1表示失败
+ * **********************************************/
+int ptrace_call(pid_t pid, uint32_t ExecuteAddr, long *parameters, long num_params, struct pt_regs* regs)    
+{
+    int i=0;
+    // ARM处理器，函数传递参数，将前四个参数放到r0-r3，剩下的参数压入栈中
+    for(i=0; i&lt;num_params &amp;&amp; i&lt;4; i++)
+    {
+       regs-&gt;uregs[i] = parameters[i]; 
+    }
+    if(i &lt; num_params)
+    {
+        regs-&gt;ARM_sp -= (num_params - i) * sizeof(long);
+        if (ptrace_writedata(pid, (void *)regs-&gt;ARM_sp, (uint8_t *)&amp;parameters[i], (num_params - i) * sizeof(long))  == -1)
+        {
+            return -1;
+        }
+    }
+
+    //修改程序计数器
+    regs-&gt;ARM_pc = ExecuteAddr; 
+
+    //判断指令集
+    // 与BX跳转指令类似，判断跳转的地址位[0]是否为1，如果为1，则将CPST寄存器的标志T置位，解释为Thumb代码
+    if (regs-&gt;ARM_pc &amp; 1) 
+    {
+        /*Thumb*/
+        regs-&gt;ARM_pc &amp;= (~1u);
+        regs-&gt;ARM_cpsr |= CPSR_T_MASK;
+    }
+    else
+    {
+        /* ARM*/
+        regs-&gt;ARM_cpsr &amp;= ~CPSR_T_MASK;
+    }
+
+    regs-&gt;ARM_lr = 0;
+
+    //设置好寄存器后，开始运行进程
+    if (ptrace_setregs(pid, regs) == -1 || ptrace_continue(pid) == -1)
+    {
+        LOGD(&quot;ptrace set regs or continue error, pid:%d&quot;, pid);
+        return -1;
+    }
+
+    //对于ptrace_continue运行的进程，他会在三种情况下进入暂停状态：1.下一次系统调用 2.子进程出现异常 3.子进程退出
+    //参数WUNTRACED表示当进程进入暂停状态后，立即返回
+    //将存放返回地址的lr寄存器设置为0，执行返回的时候就会发生错误，从子进程暂停
+    int stat = 0;
+    waitpid(pid, &amp;stat, WUNTRACED);
+    LOGD(&quot;ptrace call ret status is %d\n&quot;, stat);
+    //0xb7f表示子进程进入暂停状态
+    while (stat != 0xb7f)
+    {
+        if (ptrace_continue(pid) == -1)
+        {
+           LOGD(&quot;ptrace call error&quot;); 
+           return -1;
+        }
+        waitpid(pid, &amp;stat, WUNTRACED);
+    }
+    // 获取远程进程的寄存器值，方便获取返回值
+    if (ptrace_getregs(pid, regs) == -1)
+    {
+        LOGD(&quot;After call getregs error&quot;);
+        return -1;
+    }
+    return 0;
+}
+
+/*************************************************
+ *  Description:    在指定进程中搜索对应模块的基址
+ *  Input:          pid表示远程进程的ID，若为-1表示自身进程，ModuleName表示要搜索的模块的名称
+ *  Return:         返回0表示获取模块基址失败，返回非0为要搜索的模块基址
+ * **********************************************/
+void* GetModuleBaseAddr(pid_t pid, const char* ModuleName)
+{
+    char szFileName[50] = {0};
+    FILE *fp = NULL;
+    char szMapFileLine[1024] = {0};
+    char *ModulePath, *MapFileLineItem;
+    long ModuleBaseAddr = 0; 
+
+    // 读取&quot;/proc/pid/maps&quot;可以获得该进程加载的模块
+    if (pid &lt; 0)
+    {
+        snprintf(szFileName, sizeof(szFileName), &quot;/proc/self/maps&quot;); 
+    }
+    else
+    {
+        snprintf(szFileName, sizeof(szFileName), &quot;/proc/%d/maps&quot;, pid);   
+    }
+
+    fp = fopen(szFileName, &quot;r&quot;);
+    if (fp != NULL)
+    {
+        while (fgets(szMapFileLine, sizeof(szMapFileLine), fp))
+        {
+            if (strstr(szMapFileLine, ModuleName))
+            {
+                MapFileLineItem = strtok(szMapFileLine, &quot; \t&quot;);
+                char *Addr = strtok(szMapFileLine, &quot;-&quot;);
+                ModuleBaseAddr = strtoul(Addr, NULL, 16 );
+
+                if (ModuleBaseAddr == 0x8000)
+                {
+                    ModuleBaseAddr = 0;
+                }
+                break;
+            }
+        }
+        fclose(fp);
+    }
+    return (void *)ModuleBaseAddr;
+}
+
+/*************************************************
+ *  Description:    获取远程进程与本进程都加载的模块中函数的地址
+ *  Input:          pid表示远程进程的ID，ModuleName表示模块名称，LocalFuncAddr表示本地进程中该函数的地址
+ *  Return:         返回远程进程中对应函数的地址
+ * ***********************************************/
+void* GetRemoteFuncAddr(pid_t pid, const char *ModuleName, void *LocalFuncAddr)
+{
+    void *LocalModuleAddr, *RemoteModuleAddr, *RemoteFuncAddr;
+    LocalModuleAddr = GetModuleBaseAddr(-1, ModuleName);
+    RemoteModuleAddr = GetModuleBaseAddr(pid, ModuleName);
+    RemoteFuncAddr = (void *)((long)LocalFuncAddr - (long)LocalModuleAddr + (long)RemoteModuleAddr);
+    return RemoteFuncAddr;
+}
+
+/*************************************************
+ *  通过远程直接调用dlopen\dlsym的方法ptrace注入so模块到远程进程中
+ *  Input:          pid表示远程进程的ID，LibPath为被远程注入的so模块路径，FunctionName为远程注入的模块后调用的函数
+ *                  FuncParameter指向被远程调用函数的参数（若传递字符串，需要先将字符串写入到远程进程空间中），NumParameter为参数的个数
+ *  Return:         返回0表示注入成功，返回-1表示失败
+ * ***********************************************/
+int inject_remote_process(pid_t pid, char *LibPath, char *FunctionName, long *FuncParameter, long NumParameter)
+{
+    int iRet = -1;
+    struct pt_regs CurrentRegs, OriginalRegs;
+    void *mmap_addr, *dlopen_addr, *dlsym_addr, *dlclose_addr, *dlerror_addr;
+    void *RemoteMapMemoryAddr, *RemoteModuleAddr, *RemoteModuleFuncAddr; 
+    long parameters[6];
+
+    /* 1. 附加到远程进程上*/
+    if (ptrace_attach(pid) == -1)
+    {
+        return iRet; 
+    }
+
+    /* 2. 获取远程进程的寄存器值并保存下来，为了完成注入模块后的程序恢复执行做准备*/
+    if (ptrace_getregs(pid, &amp;CurrentRegs) == -1)
+    {
+        ptrace_detach(pid);
+        return iRet;
+    }
+    LOGD(&quot;ARM_r0:0x%lx, ARM_r1:0x%lx, ARM_r2:0x%lx, ARM_r3:0x%lx, ARM_r4:0x%lx, \
+          ARM_r5:0x%lx, ARM_r6:0x%lx, ARM_r7:0x%lx, ARM_r8:0x%lx, ARM_r9:0x%lx, \
+          ARM_r10:0x%lx, ARM_ip:0x%lx, ARM_sp:0x%lx, ARM_lr:0x%lx, ARM_pc:0x%lx&quot;, 
+          CurrentRegs.ARM_r0, CurrentRegs.ARM_r1, CurrentRegs.ARM_r2, CurrentRegs.ARM_r3, CurrentRegs.ARM_r4,
+          CurrentRegs.ARM_r5, CurrentRegs.ARM_r6, CurrentRegs.ARM_r7, CurrentRegs.ARM_r8, CurrentRegs.ARM_r9,
+          CurrentRegs.ARM_r10, CurrentRegs.ARM_ip, CurrentRegs.ARM_sp, CurrentRegs.ARM_lr, CurrentRegs.ARM_pc);
+    memcpy(&amp;OriginalRegs, &amp;CurrentRegs, sizeof(CurrentRegs));
+
+    /* 3. 在远程进程内部开辟一遍内存空间存放一些常量数据，为远程进程执行函数调用提供参数地址
+     *    这里需要知道，我们为什么不直接传递进去常量？这是因为我们现在传递的值是我们当前这个注入工具内存空间的值，
+     *    相应的内存地址也是我们注入工具的，远程进程是访问不到的，所以我们需要将这些参数都在传递到远程进程空间中去*/
+    mmap_addr = GetRemoteFuncAddr(pid, libc_path, (void *)mmap);
+    LOGD(&quot;mmap RemoteFuncAddr:0x%lx&quot;, (long)mmap_addr);
+
+    //参数
+    parameters[0] = 0;//设置NULL表示让系统自己选择内存位置进行分配
+    parameters[1] = 0x1000;//分配内存空间大小为1个内存页
+    parameters[2] = PROT_READ | PROT_WRITE | PROT_EXEC;//分配的内存区域的权限是可读、可写、可执行的
+    parameters[3] =  MAP_ANONYMOUS | MAP_PRIVATE;//匿名映射，表示不受文件支持，下面两个参数可以为0
+    parameters[4] = 0;//文件标识符，这里为0表示不映射文件内容
+    parameters[5] = 0;//文件映射偏移量
+
+    //调用mmap函数
+    if (ptrace_call(pid, (long)mmap_addr, parameters, 6, &amp;CurrentRegs) == -1)
+    {
+        LOGD(&quot;Call Remote mmap Func Failed&quot;);
+        ptrace_detach(pid);
+        return iRet;
+    }
+
+    //获取分配出的内存区域的地址
+    RemoteMapMemoryAddr = (void *)ptrace_getret(&amp;CurrentRegs);
+    LOGD(&quot;Remote Process Map Memory Addr:0x%lx&quot;, (long)RemoteMapMemoryAddr);
+
+    /* 4. 让远程进程执行dlopen加载so库到内存中。
+     *    这里需要先将dlopen参数中的so库路径传递到远程进程的内存空间中，这样它调用dlopen的时候才可以从自己的内存空间中获取相应常量值*/
+
+    //在远程进程新开辟的内存空间中写入so库路径
+    if (ptrace_writedata(pid, RemoteMapMemoryAddr, LibPath, strlen(LibPath) + 1) == -1)
+    {
+        LOGD(&quot;Write LibPath:%s to RemoteProcess error&quot;, LibPath);
+        ptrace_detach(pid);
+        return iRet;
+    }
+
+    //参数
+    parameters[0] = (long)RemoteMapMemoryAddr;
+    parameters[1] = RTLD_NOW| RTLD_GLOBAL;
+
+    dlopen_addr = GetRemoteFuncAddr(pid, linker_path, (void *)dlopen);
+    LOGD(&quot;dlopen RemoteFuncAddr:0x%lx&quot;, (long)dlopen_addr);
+    dlerror_addr = GetRemoteFuncAddr(pid, linker_path, (void *)dlerror);
+    LOGD(&quot;dlerror RemoteFuncAddr:0x%lx&quot;, (long)dlerror_addr);
+    dlclose_addr = GetRemoteFuncAddr(pid, linker_path, (void *)dlclose);
+    LOGD(&quot;dlclose RemoteFuncAddr:0x%lx&quot;, (long)dlclose_addr);
+    if (ptrace_call(pid, (long)dlopen_addr, parameters, 2, &amp;CurrentRegs) == -1)
+    {
+        LOGD(&quot;Call Remote dlopen Func Failed&quot;);
+        ptrace_detach(pid);
+        return iRet;
+    }
+
+    //获取远程进程内存中被加载进去模块的地址
+    RemoteModuleAddr = (void *)ptrace_getret(&amp;CurrentRegs);
+    LOGD(&quot;Remote Process load module Addr:0x%lx&quot;, (long)RemoteModuleAddr);
+
+    // dlopen 错误
+    if ((long)RemoteModuleAddr == 0x0)
+    {
+        LOGD(&quot;dlopen error&quot;);
+        if (ptrace_call(pid, (long)dlerror_addr, parameters, 0, &amp;CurrentRegs) == -1)
+        {
+            LOGD(&quot;Call Remote dlerror Func Failed&quot;);
+            ptrace_detach(pid);
+            return iRet;
+        }
+        char *Error = (void *)ptrace_getret(&amp;CurrentRegs);
+        char LocalErrorInfo[1024] = {0};
+        ptrace_readdata(pid, Error, LocalErrorInfo, 1024);
+        LOGD(&quot;dlopen error:%s&quot;, LocalErrorInfo);
+        ptrace_detach(pid);
+        return iRet;
+    }
+
+    /* 5.远程进程调用被加载进去模块的函数。
+     *   先将参数传递进远程进程空间，然后利用dlsym函数搜索函数位置，最后在进行调用*/
+    if (ptrace_writedata(pid, RemoteMapMemoryAddr + strlen(LibPath) + 2, FunctionName, strlen(FunctionName) + 1) == -1)
+    {
+        LOGD(&quot;Write FunctionName:%s to RemoteProcess error&quot;, FunctionName);
+        ptrace_detach(pid);
+        return iRet;
+    }
+
+    //设置dlsym参数
+    parameters[0] = (long)RemoteModuleAddr;
+    parameters[1] = (long)(RemoteMapMemoryAddr + strlen(LibPath) + 2);
+    LOGD(&quot;Func Name：%x\n&quot;, parameters[1]);
+
+    //调用dlsym函数并获取返回的函数地址
+    dlsym_addr = GetRemoteFuncAddr(pid, linker_path, (void *)dlsym);
+    LOGD(&quot;dlsym RemoteFuncAddr:0x%lx&quot;, (long)dlsym_addr);
+    if (ptrace_call(pid, (long)dlsym_addr, parameters, 2, &amp;CurrentRegs) == -1)
+    {
+        LOGD(&quot;Call Remote dlsym Func Failed&quot;);
+        ptrace_detach(pid);
+        return iRet;
+    }
+    RemoteModuleFuncAddr = (void *)ptrace_getret(&amp;CurrentRegs);
+    LOGD(&quot;Remote Process ModuleFunc Addr:0x%lx&quot;, (long)RemoteModuleFuncAddr);
+
+    /* 6. 在远程进程中调用加载进去模块的函数,这里为了简单起见，没有选择传入参数，所以省去写入参数到远程进空间的步骤*/
+    if (ptrace_call(pid, (long)RemoteModuleFuncAddr, FuncParameter, NumParameter, &amp;CurrentRegs) == -1)
+    {
+        LOGD(&quot;Call Remote injected Func Failed&quot;);
+        ptrace_detach(pid);
+        return iRet;
+    }
+
+    /* 7. 恢复远程进程的执行操作*/
+    if (ptrace_setregs(pid, &amp;OriginalRegs) == -1)
+    {
+        LOGD(&quot;Recover reges failed&quot;);
+        ptrace_detach(pid);
+        return iRet;
+    }
+    LOGD(&quot;Recover Regs Success&quot;);
+    ptrace_getregs(pid, &amp;CurrentRegs);
+    if (memcmp(&amp;OriginalRegs, &amp;CurrentRegs, sizeof(CurrentRegs)) != 0)
+    {
+        LOGD(&quot;Set Regs Error&quot;);
+    }
+
+    if (ptrace_detach(pid) == -1)
+    {
+        LOGD(&quot;ptrace detach failed&quot;);
+        return iRet;
+    }
+
+    return 0;
+}</code></pre>
+<p><strong>注入工具的入口文件</strong>：InjectModule.c </p>
+<pre><code class="c++">/************************************************************
+  FileName: InjectModule.c
+  Description:       ptrace注入      
+***********************************************************/
+
+#include &lt;stdio.h&gt;    
+#include &lt;stdlib.h&gt;
+#include &lt;sys/user.h&gt;    
+#include &lt;asm/ptrace.h&gt;    
+#include &lt;sys/ptrace.h&gt;    
+#include &lt;sys/wait.h&gt;    
+#include &lt;sys/mman.h&gt;    
+#include &lt;dlfcn.h&gt;    
+#include &lt;dirent.h&gt;    
+#include &lt;unistd.h&gt;    
+#include &lt;string.h&gt;    
+#include &lt;elf.h&gt;    
+#include &lt;ptraceInject.h&gt;
+#include &lt;PrintLog.h&gt; 
+
+/*************************************************
+  Description:    通过进程名称定位到进程的PID
+  Input:          process_name为要定位的进程名称
+  Output:         无
+  Return:         返回定位到的进程PID，若为-1，表示定位失败
+  Others:         无
+*************************************************/ 
+pid_t FindPidByProcessName(const char *process_name)
+{
+    int ProcessDirID = 0;
+    pid_t pid = -1;
+    FILE *fp = NULL;
+    char filename[MAX_PATH] = {0};
+    char cmdline[MAX_PATH] = {0};
+
+    struct dirent * entry = NULL;
+
+    if ( process_name == NULL )
+        return -1;
+
+    DIR* dir = opendir( &quot;/proc&quot; );
+    if ( dir == NULL )
+        return -1;
+
+    while( (entry = readdir(dir)) != NULL )
+    {
+        ProcessDirID = atoi( entry-&gt;d_name );
+        if ( ProcessDirID != 0 )
+        {
+            snprintf(filename, MAX_PATH, &quot;/proc/%d/cmdline&quot;, ProcessDirID);
+            fp = fopen( filename, &quot;r&quot; );
+            if ( fp )
+            {
+                fgets(cmdline, sizeof(cmdline), fp);
+                fclose(fp);
+
+                if (strncmp(process_name, cmdline, strlen(process_name)) == 0)
+                {
+                    pid = ProcessDirID;
+                    break;
+                }
+            }
+        }
+    }
+
+    closedir(dir);
+    return pid;
+}
+
+int main(int argc, char *argv[]) {
+    char InjectModuleName[MAX_PATH] = &quot;/data/libInjectModule.so&quot;;    // 注入模块全路径
+    char RemoteCallFunc[MAX_PATH] = &quot;Inject_entry&quot;;              // 注入模块后调用模块函数名称
+    char InjectProcessName[MAX_PATH] = &quot;com.testjni&quot;;                      // 注入进程名称
+
+    // 当前设备环境判断
+    #if defined(__i386__)  
+    LOGD(&quot;Current Environment x86&quot;);
+    return -1;
+    #elif defined(__arm__)
+    LOGD(&quot;Current Environment ARM&quot;);
+    #else     
+    LOGD(&quot;other Environment&quot;);
+    return -1;
+    #endif
+
+    pid_t pid = FindPidByProcessName(InjectProcessName);
+    if (pid == -1)
+    {
+        printf(&quot;Get Pid Failed&quot;);
+        return -1;
+    }    
+
+    printf(&quot;begin inject process, RemoteProcess pid:%d, InjectModuleName:%s, RemoteCallFunc:%s\n&quot;, pid, InjectModuleName, RemoteCallFunc);
+    int iRet = inject_remote_process(pid,  InjectModuleName, RemoteCallFunc,  NULL, 0);
+    //int iRet = inject_remote_process_shellcode(pid,  InjectModuleName, RemoteCallFunc,  NULL, 0);
+
+    if (iRet == 0)
+    {
+        printf(&quot;Inject Success\n&quot;);
+    }
+    else
+    {
+        printf(&quot;Inject Failed\n&quot;);
+    }
+    printf(&quot;end inject,%d\n&quot;, pid);
+    return 0;  
+}  </code></pre>
+<h1 id="编译过程"><a href="#编译过程" class="headerlink" title="编译过程"></a>编译过程</h1><p>将上面的注入代码编译成可执行文件</p>
+<h2 id="准备文件"><a href="#准备文件" class="headerlink" title="准备文件"></a>准备文件</h2><h3 id="注入工具"><a href="#注入工具" class="headerlink" title="注入工具"></a>注入工具</h3><ul>
+<li><p>jni文件夹</p>
+<p>编译文件必须在jni文件夹下</p>
+</li>
+<li><p>jni/Android.mk</p>
+<p>编译配置文件。</p>
+<ul>
+<li><p>LOCAL_PATH指定源文件所在目录</p>
+</li>
+<li><p>CLEAR_VARS用来清除很多LOCAL_*变量(但是不会清除LOCAL_PATH)，因为如果编译多个so就需要清除上一个so文件的配置信息</p>
+</li>
+<li><p>LOCAL_MODULE：编译后的模块名，默认在后面加上.so</p>
+</li>
+<li><p>LOCAL_SRC_FILES: 被编译的源文件</p>
+</li>
+<li><p>LOCAL_LDLIBS：源文件用到了一些系统库，通过此变量标记链接到具体位置，如<code>-L$(SYSROOT)/usr/lib</code>指定标准库的目录位置位于NDK安装根目录下的 sysroot/usr/include 中.</p>
+<p>而<code>-llog</code>则标记使用到了liblog.so这个日志库</p>
+</li>
+<li><p><code>include $(BUILD_EXECUTABLE)</code>则指定编译成可执行文件</p>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code>LOCAL_PATH := $(call my-dir)  
+
+include $(CLEAR_VARS)  
+LOCAL_MODULE := inject   
+LOCAL_SRC_FILES := ptraceInject.c InjectModule.c 
+
+LOCAL_LDLIBS += -L$(SYSROOT)/usr/lib -llog  
+
+include $(BUILD_EXECUTABLE)  </code></pre><ul>
+<li><p>jni/Application.mk</p>
+<p>指定生成适用于32 位 ARMv7指令集的文件</p>
+</li>
+</ul>
+<pre><code>APP_ABI := armeabi-v7a</code></pre><ul>
+<li>注入工具的源文件：InjectModule.c，ptraceInject.c，ptraceInject.h，PrintLog.h<ul>
+<li>InjectModule.c：注入工具入口文件</li>
+<li>ptraceInject.c：注入工具的功能代码</li>
+<li>ptraceInject.h：声明注入函数的头文件</li>
+<li>PrintLog.h：声明日志函数的头文件</li>
+</ul>
+</li>
+</ul>
+<h3 id="被注入的Demo模块"><a href="#被注入的Demo模块" class="headerlink" title="被注入的Demo模块"></a>被注入的Demo模块</h3><ul>
+<li>jni文件夹</li>
+<li>jni/Android.mk</li>
+</ul>
+<pre><code>LOCAL_PATH := $(call my-dir)  
+
+include $(CLEAR_VARS)  
+LOCAL_MODULE := InjectModule  
+LOCAL_SRC_FILES := InjectModule.c
+
+LOCAL_ARM_MODE := arm
+
+LOCAL_LDLIBS += -L$(SYSROOT)/usr/lib -llog  
+
+include $(BUILD_SHARED_LIBRARY) </code></pre><ul>
+<li>jni/Application.mk</li>
+</ul>
+<pre><code>APP_ABI := armeabi-v7a</code></pre><ul>
+<li>被注入模块的源文件InjectModule.c，和日志打印头文件PrintLog.h，这个头文件和上面一样</li>
+</ul>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;PrintLog.h&gt;
+
+int Inject_entry()
+{
+    LOGD(&quot;Inject_entry Func is called\n&quot;);
+    return 0;
+}</code></pre><h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p>分别在两个jni目录下执行<code>ndk-build</code>命令，需要配置环境变量</p>
+<p><strong>生成位置：</strong>jni同目录下的libs/armeabi-v7a文件夹中</p>
+<h1 id="注入过程"><a href="#注入过程" class="headerlink" title="注入过程"></a>注入过程</h1><p>将编译好的<code>libInjectModule.so</code>文件放入/data目录下，然后chmod 777 给注入工具提供执行权限，并运行即可在日志中看到被注入的应用执行了我们注入进去的libInjectModule.so模块中的函数。</p>
+<p>当然也可以通过查看进程的内存布局，可以看到我们</p>
+<p><img src="/2019/09/08/ptrace注入/1559812661631.png" alt></p>
+<p><img src="/2019/09/08/ptrace注入/1559823892063.png" alt></p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>通过dlopen和dlsym函数将我们自己写好的so库注入进去，记住几个点</p>
+<p>【1】只要让远程进程调用dlopen打开我们写好的so文件就实现了so库的注入，紧接着通过将函数名称和dlopen打开的句柄作为参数传递给dlsym就可以实现库中函数地址的检索</p>
+<p>【2】上面用到的so文件的路径和函数名称，都需要我们传递到远程进程的内存空间中，远程进程是不能跨进程访问我们注入工具中的字符串的</p>
+<p>【3】远程进程的调用，主要通过ptrace来修改寄存器实现，pc决定函数调用哪条指令，r0-r3还有栈决定参数</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>【书籍】游戏安全-手游安全技术入门</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android注入/" rel="tag"># Android注入</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/08/inline_Hook/" rel="next" title="inline-hook">
+                <i class="fa fa-chevron-left"></i> inline-hook
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/08/windows样本分析之高级静态分析/" rel="prev" title="windows样本分析之高级静态分析">
+                windows样本分析之高级静态分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#技术概述"><span class="nav-number">2.</span> <span class="nav-text">技术概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">3.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译过程"><span class="nav-number">4.</span> <span class="nav-text">编译过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#准备文件"><span class="nav-number">4.1.</span> <span class="nav-text">准备文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#注入工具"><span class="nav-number">4.1.1.</span> <span class="nav-text">注入工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#被注入的Demo模块"><span class="nav-number">4.1.2.</span> <span class="nav-text">被注入的Demo模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译"><span class="nav-number">4.2.</span> <span class="nav-text">编译</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注入过程"><span class="nav-number">5.</span> <span class="nav-text">注入过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">6.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

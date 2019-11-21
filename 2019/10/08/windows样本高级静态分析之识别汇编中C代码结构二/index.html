@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windows病毒分析,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="目标通过分析代码结构来理解一个恶意样本的总体功能。 本篇主要通过分析样本了解switch语句 分析流程1.基础静态分析 2.基础动态分析 3.高级静态分析 实践过程实例1Lab06-03.exe 基础静态分析导入函数 InternetOpenUrlA InternetCloseHandle InternetReadFile InternetGetConnectedState InternetOpe">
+<meta name="keywords" content="windows病毒分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="windows样本高级静态分析之识别汇编中C代码结构二">
+<meta property="og:url" content="http://yoursite.com/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="目标通过分析代码结构来理解一个恶意样本的总体功能。 本篇主要通过分析样本了解switch语句 分析流程1.基础静态分析 2.基础动态分析 3.高级静态分析 实践过程实例1Lab06-03.exe 基础静态分析导入函数 InternetOpenUrlA InternetCloseHandle InternetReadFile InternetGetConnectedState InternetOpe">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570531441363.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570531826979.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570534305691.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570534823520.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570536333060.png">
+<meta property="og:updated_time" content="2019-10-17T10:00:03.633Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="windows样本高级静态分析之识别汇编中C代码结构二">
+<meta name="twitter:description" content="目标通过分析代码结构来理解一个恶意样本的总体功能。 本篇主要通过分析样本了解switch语句 分析流程1.基础静态分析 2.基础动态分析 3.高级静态分析 实践过程实例1Lab06-03.exe 基础静态分析导入函数 InternetOpenUrlA InternetCloseHandle InternetReadFile InternetGetConnectedState InternetOpe">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570531441363.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/">
+
+
+
+
+
+  <title>windows样本高级静态分析之识别汇编中C代码结构二 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">windows样本高级静态分析之识别汇编中C代码结构二</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-10-08T18:31:26+08:00">
+                2019-10-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>通过分析代码结构来理解一个恶意样本的总体功能。</p>
+<p>本篇主要通过分析样本了解switch语句</p>
+<h1 id="分析流程"><a href="#分析流程" class="headerlink" title="分析流程"></a>分析流程</h1><p>1.基础静态分析</p>
+<p>2.基础动态分析</p>
+<p>3.高级静态分析</p>
+<h1 id="实践过程"><a href="#实践过程" class="headerlink" title="实践过程"></a>实践过程</h1><h2 id="实例1"><a href="#实例1" class="headerlink" title="实例1"></a>实例1</h2><p>Lab06-03.exe</p>
+<h3 id="基础静态分析"><a href="#基础静态分析" class="headerlink" title="基础静态分析"></a>基础静态分析</h3><p>导入函数</p>
+<pre><code>InternetOpenUrlA
+InternetCloseHandle
+InternetReadFile
+InternetGetConnectedState
+InternetOpenA
+RegSetValueExA
+RegOpenKeyExA
+CreateDirectoryA
+CopyFileA
+DeleteFileA
+GetFileType
+WriteFile</code></pre><p>字符串</p>
+<pre><code>http://www.practicalmalwareanalysis.com/cc.htm
+Software\Microsoft\Windows\CurrentVersion\Run
+C:\Temp\cc.exe
+C:\Temp
+Error 1.1: No Internet
+Success: Internet Connection
+Error 2.3: Fail to get command
+Error 2.2: Fail to ReadFile
+Error 2.1: Fail to OpenUrl
+Internet Explorer 7.5/pma
+Error 3.2: Not a valid command provided
+Error 3.1: Could not set Registry value
+Malware
+Success: Parsed command is %c</code></pre><p>根据api和字符串可以判断：</p>
+<p>1.存在联网访问<a href="http://www.practicalmalwareanalysis.com/cc.htm" target="_blank" rel="noopener">http://www.practicalmalwareanalysis.com/cc.htm</a> 网址操作并且通过字符串中的错信息可以判断可能存在解析网页来获取命令来执行</p>
+<p>2.写注册表来是实现自启动</p>
+<p>3.产生衍生文件C:\Temp\cc.exe</p>
+<h3 id="基础动态分析"><a href="#基础动态分析" class="headerlink" title="基础动态分析"></a>基础动态分析</h3><p><img src="/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570531441363.png" alt="1570531441363"></p>
+<p>和之前分析一样，根据不同网络状态返回打印内容，接着通过高级静态分析来看程序后续操作</p>
+<h3 id="高级静态分析"><a href="#高级静态分析" class="headerlink" title="高级静态分析"></a>高级静态分析</h3><p>直接跟如main函数进行分析</p>
+<p><img src="/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570531826979.png" alt="1570531826979"></p>
+<p><em>cmp指令，脑子里立刻浮现一个if-else语句流程图，将跳转后的语句和紧跟跳转指令后的指令填入对应的if和else语句块中。</em></p>
+<p>判断条件：sub_401000函数返回结果，即联网状态</p>
+<p>if(条件成立)：调用sub_401040函数获取返回结果，如果返回结果不为0则太跳转到loc_40123C，所以接下来分析sub_401040</p>
+<p>else(条件不成立)：eax置0，并且跳转到main函数结尾</p>
+<p><img src="/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570534305691.png" alt="1570534305691"></p>
+<p>sub_401040: 第一层也就是最外层的if语句判断是否可以打开<a href="http://www.practicalmalwareanalysis.com/cc.htm，如果可以打开则条件成立，进入嵌套的第二层if语句，判断是否可以读取该网页文件，如果可以则进入嵌套的第三层if语句，判断读取的内容是否以`" target="_blank" rel="noopener">http://www.practicalmalwareanalysis.com/cc.htm，如果可以打开则条件成立，进入嵌套的第二层if语句，判断是否可以读取该网页文件，如果可以则进入嵌套的第三层if语句，判断读取的内容是否以`</a>&lt;!–`开头，如果条件成立则将接下来的数据赋给al并跳转返回。</p>
+<p>我们假设满足条件：可以访问到网页文件并且网页文件以<code>&lt;!--</code>开头，返回数据后，我们进入loc_40123C主要分析sub_401130函数：</p>
+<h5 id="switch语句（if-跳转表）"><a href="#switch语句（if-跳转表）" class="headerlink" title="switch语句（if+跳转表）"></a>switch语句（if+跳转表）</h5><p><img src="/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570534823520.png" alt="1570534823520"></p>
+<p>根据上一步从网页中获取的数据来得到对应的edx值，从而根据找到跳转表对应的位置进行跳转并执行相应代码。</p>
+<p>这里有：</p>
+<ul>
+<li>创建目录</li>
+<li>复制当前程序到C:\Temp\cc.exe</li>
+<li>删除C:\Temp\cc.exe</li>
+<li>设置C:\Temp\cc.exe对应的开启自启动注册表键值Malware</li>
+</ul>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>分析到这里基本完毕。</p>
+<p>主要恶意行为就是通过从网页中获取的指令来执行对样本的隐藏、删除、自启动以及创建目录的操作。</p>
+<h2 id="switch补充"><a href="#switch补充" class="headerlink" title="switch补充"></a>switch补充</h2><p>上面的实例中介绍到了switch的一种跳转表的跳转形式，下面补充一种纯用if语句进行的跳转：</p>
+<p>真实代码</p>
+<pre><code class="C">#include &lt;stdio.h&gt;
+
+
+void main()
+{
+    int i = 0;
+    scanf(&quot;%d&quot;, &amp;i);
+    switch(i)
+    {
+    case 0:
+        printf(&quot;a&quot;);
+        break;
+    case 1:
+        printf(&quot;b&quot;);
+        break;
+    case 2:
+        printf(&quot;c&quot;);
+        break;
+    default:
+        break;
+    }
+}</code></pre>
+<p>汇编：</p>
+<p><img src="/2019/10/08/windows样本高级静态分析之识别汇编中C代码结构二/1570536333060.png" alt="1570536333060"></p>
+<p>cmp + jz + jmp实现的switch流程</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows病毒分析/" rel="tag"># windows病毒分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/30/windows样本高级静态分析之识别汇编中C代码结构/" rel="next" title="windows样本高级静态分析之识别汇编中C代码结构">
+                <i class="fa fa-chevron-left"></i> windows样本高级静态分析之识别汇编中C代码结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/09/windows样本高级静态分析之识别汇编中C代码结构三/" rel="prev" title="windows样本高级静态分析之识别汇编中C代码结构三">
+                windows样本高级静态分析之识别汇编中C代码结构三 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#目标"><span class="nav-number">1.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分析流程"><span class="nav-number">2.</span> <span class="nav-text">分析流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践过程"><span class="nav-number">3.</span> <span class="nav-text">实践过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实例1"><span class="nav-number">3.1.</span> <span class="nav-text">实例1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础静态分析"><span class="nav-number">3.1.1.</span> <span class="nav-text">基础静态分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基础动态分析"><span class="nav-number">3.1.2.</span> <span class="nav-text">基础动态分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级静态分析"><span class="nav-number">3.1.3.</span> <span class="nav-text">高级静态分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#switch语句（if-跳转表）"><span class="nav-number">3.1.3.0.1.</span> <span class="nav-text">switch语句（if+跳转表）</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小结"><span class="nav-number">3.1.3.1.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#switch补充"><span class="nav-number">3.2.</span> <span class="nav-text">switch补充</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

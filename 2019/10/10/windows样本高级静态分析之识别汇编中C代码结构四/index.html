@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windows病毒分析,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="引言通过将一条条指令组合成原始的数据类型完成汇编指令到高级语言结构 目标掌握数组、链表、结构体等数据类型的汇编指令。 流程 编写源代码，生成对应程序 返汇编程序 分析汇编代码，总结数据类型的特点 小结  实践过程数组类型 源代码  #include &amp;lt;stdio.h&amp;gt;  void main() {     int arr[5];     arr[0] = 1;     arr[1] =">
+<meta name="keywords" content="windows病毒分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="windows样本高级静态分析之识别汇编中C代码结构四">
+<meta property="og:url" content="http://yoursite.com/2019/10/10/windows样本高级静态分析之识别汇编中C代码结构四/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="引言通过将一条条指令组合成原始的数据类型完成汇编指令到高级语言结构 目标掌握数组、链表、结构体等数据类型的汇编指令。 流程 编写源代码，生成对应程序 返汇编程序 分析汇编代码，总结数据类型的特点 小结  实践过程数组类型 源代码  #include &amp;lt;stdio.h&amp;gt;  void main() {     int arr[5];     arr[0] = 1;     arr[1] =">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/10/10/windows样本高级静态分析之识别汇编中C代码结构四/1570677323050.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/10/windows样本高级静态分析之识别汇编中C代码结构四/1570679670515.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/10/windows样本高级静态分析之识别汇编中C代码结构四/1570680406808.png">
+<meta property="og:updated_time" content="2019-10-10T04:21:53.856Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="windows样本高级静态分析之识别汇编中C代码结构四">
+<meta name="twitter:description" content="引言通过将一条条指令组合成原始的数据类型完成汇编指令到高级语言结构 目标掌握数组、链表、结构体等数据类型的汇编指令。 流程 编写源代码，生成对应程序 返汇编程序 分析汇编代码，总结数据类型的特点 小结  实践过程数组类型 源代码  #include &amp;lt;stdio.h&amp;gt;  void main() {     int arr[5];     arr[0] = 1;     arr[1] =">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/10/windows样本高级静态分析之识别汇编中C代码结构四/1570677323050.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/10/10/windows样本高级静态分析之识别汇编中C代码结构四/">
+
+
+
+
+
+  <title>windows样本高级静态分析之识别汇编中C代码结构四 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/10/windows样本高级静态分析之识别汇编中C代码结构四/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">windows样本高级静态分析之识别汇编中C代码结构四</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-10-10T11:02:59+08:00">
+                2019-10-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>通过将一条条指令组合成原始的数据类型完成汇编指令到高级语言结构</p>
+<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>掌握数组、链表、结构体等数据类型的汇编指令。</p>
+<h1 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h1><ol>
+<li>编写源代码，生成对应程序</li>
+<li>返汇编程序</li>
+<li>分析汇编代码，总结数据类型的特点</li>
+<li>小结</li>
+</ol>
+<h1 id="实践过程"><a href="#实践过程" class="headerlink" title="实践过程"></a>实践过程</h1><h2 id="数组类型"><a href="#数组类型" class="headerlink" title="数组类型"></a>数组类型</h2><ul>
+<li>源代码</li>
+</ul>
+<pre><code class="c">#include &lt;stdio.h&gt;
+
+void main()
+{
+    int arr[5];
+    arr[0] = 1;
+    arr[1] = 2;
+    for(int i=2; i&lt;5; i++)
+    {
+        arr[i] = i;
+    }
+}</code></pre>
+<ul>
+<li>汇编代码</li>
+</ul>
+<p><img src="/2019/10/10/windows样本高级静态分析之识别汇编中C代码结构四/1570677323050.png" alt="1570677323050"></p>
+<ul>
+<li>数据类型特点</li>
+</ul>
+<p>选区一块内存区域存放数组内容，这里选取的是栈上内存块并且从<code>ebp+arr</code>开始，然后将数据填充到这块内存里。</p>
+<ol>
+<li>一块内存上的每个元素长度一致</li>
+</ol>
+<ul>
+<li>小结</li>
+</ul>
+<pre><code class="assembly">call    ds:__imp__malloc
+...
+mov     [ebp+eax*4+arr], ecx</code></pre>
+<p>给一段内存地址赋长度相同的值，看到类似上面这种指令的时候就可以浮现出一个对应数据类型的数组</p>
+<h2 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h2><ul>
+<li>源代码</li>
+</ul>
+<pre><code class="c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+struct mystruct
+{
+    int x[5];
+    char y;
+};
+
+struct mystruct *test;
+
+void main()
+{
+    test = (struct mystruct *)malloc(sizeof(struct mystruct));
+    for(int i=0; i&lt;5; i++)
+    {
+        test-&gt;x[i]= i;
+    }
+    test-&gt;y = &#39;a&#39;;
+}</code></pre>
+<ul>
+<li>汇编代码</li>
+</ul>
+<p><img src="/2019/10/10/windows样本高级静态分析之识别汇编中C代码结构四/1570679670515.png" alt="1570679670515"></p>
+<ul>
+<li>特点</li>
+</ul>
+<p>malloc出一块内存，然后给这块内存赋不同类型的数据</p>
+<ol>
+<li>一个内存上每个元素不全一致</li>
+</ol>
+<ul>
+<li>小结</li>
+</ul>
+<pre><code class="assembly">mov     ecx, ?test@@3PAUmystruct@@A ;
+mov     edx, [ebp+var_2C]
+mov     [ecx+eax*4], edx
+...
+mov     eax, ?test@@3PAUmystruct@@A ; mystruct * test
+mov     byte ptr [eax+14h], &#39;a&#39;</code></pre>
+<p>malloc得到一块内存后，给其赋不同长度或不同类型的数据</p>
+<h2 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h2><ul>
+<li>源代码</li>
+</ul>
+<pre><code class="c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+struct node
+{
+    int x;
+    struct node * next;
+};
+
+typedef node pnode;
+
+void main()
+{
+    pnode * curr, * head;
+    int i;
+    head = NULL;
+    for(i = 1; i&lt;=3; i++)
+    {
+        curr = (pnode *)malloc(sizeof(pnode));
+        curr-&gt;x = i;
+        curr-&gt;next = head;
+        head = curr;
+    }
+}</code></pre>
+<ul>
+<li>汇编代码</li>
+</ul>
+<p><img src="/2019/10/10/windows样本高级静态分析之识别汇编中C代码结构四/1570680406808.png" alt="1570680406808"></p>
+<ul>
+<li>特点</li>
+</ul>
+<p>malloc一块内存，给这块内存内赋任意元素数据和<code>一个内存地址</code>，这个内存地址指向另一块相同类型的内存。</p>
+<ol>
+<li>一个内存块里必须存在一个元素指向另一个相同类型的内存块</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows病毒分析/" rel="tag"># windows病毒分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/09/windows样本高级静态分析之识别汇编中C代码结构三/" rel="next" title="windows样本高级静态分析之识别汇编中C代码结构三">
+                <i class="fa fa-chevron-left"></i> windows样本高级静态分析之识别汇编中C代码结构三
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/11/windows样本高级静态分析之追踪恶意代码的运行/" rel="prev" title="windows样本高级静态分析之追踪恶意代码的运行">
+                windows样本高级静态分析之追踪恶意代码的运行 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#目标"><span class="nav-number">2.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#流程"><span class="nav-number">3.</span> <span class="nav-text">流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践过程"><span class="nav-number">4.</span> <span class="nav-text">实践过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数组类型"><span class="nav-number">4.1.</span> <span class="nav-text">数组类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结构体"><span class="nav-number">4.2.</span> <span class="nav-text">结构体</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#链表"><span class="nav-number">4.3.</span> <span class="nav-text">链表</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

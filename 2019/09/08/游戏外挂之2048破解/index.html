@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android破解,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="引言本篇文章主旨是通过破解2048这款游戏来入门游戏破解，学习ptrace注入和inlinehook组合使用技术 游戏玩法手指向上滑动，所有带有数字的牌向上移动  遇见相同数字牌会数字相加融合成一张牌  直到融合出一张数字为2048的牌即可赢得胜利  破解思路【1】破坏计算逻辑，修改成不相同的牌面也可以相加 【2】修改加法运算，任意两个牌面相加即可得到2048的牌面 【3】直接生成一张2048的牌">
+<meta name="keywords" content="Android破解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="游戏外挂之2048破解">
+<meta property="og:url" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="引言本篇文章主旨是通过破解2048这款游戏来入门游戏破解，学习ptrace注入和inlinehook组合使用技术 游戏玩法手指向上滑动，所有带有数字的牌向上移动  遇见相同数字牌会数字相加融合成一张牌  直到融合出一张数字为2048的牌即可赢得胜利  破解思路【1】破坏计算逻辑，修改成不相同的牌面也可以相加 【2】修改加法运算，任意两个牌面相加即可得到2048的牌面 【3】直接生成一张2048的牌">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560310066603.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560310110245.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560310181965.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560311836804.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560320654410.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560320840670.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560319360531.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560324012168.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560324675846.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560338988454.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560341008630.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/C:%5CUsers%5Cxiongchaochao%5CDownloads%5C%E5%9B%BE.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560580172494.png">
+<meta property="og:updated_time" content="2019-10-28T11:13:20.540Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="游戏外挂之2048破解">
+<meta name="twitter:description" content="引言本篇文章主旨是通过破解2048这款游戏来入门游戏破解，学习ptrace注入和inlinehook组合使用技术 游戏玩法手指向上滑动，所有带有数字的牌向上移动  遇见相同数字牌会数字相加融合成一张牌  直到融合出一张数字为2048的牌即可赢得胜利  破解思路【1】破坏计算逻辑，修改成不相同的牌面也可以相加 【2】修改加法运算，任意两个牌面相加即可得到2048的牌面 【3】直接生成一张2048的牌">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/08/游戏外挂之2048破解/1560310066603.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/08/游戏外挂之2048破解/">
+
+
+
+
+
+  <title>游戏外挂之2048破解 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/08/游戏外挂之2048破解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">游戏外挂之2048破解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-08T17:28:58+08:00">
+                2019-09-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>本篇文章主旨是通过破解2048这款游戏来入门游戏破解，学习ptrace注入和inlinehook组合使用技术</p>
+<h1 id="游戏玩法"><a href="#游戏玩法" class="headerlink" title="游戏玩法"></a>游戏玩法</h1><p>手指向上滑动，所有带有数字的牌向上移动</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560310066603.png" alt></p>
+<p>遇见相同数字牌会数字相加融合成一张牌</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560310110245.png" alt></p>
+<p>直到融合出一张数字为2048的牌即可赢得胜利</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560310181965.png" alt></p>
+<h1 id="破解思路"><a href="#破解思路" class="headerlink" title="破解思路"></a>破解思路</h1><p>【1】破坏计算逻辑，修改成不相同的牌面也可以相加</p>
+<p>【2】修改加法运算，任意两个牌面相加即可得到2048的牌面</p>
+<p>【3】直接生成一张2048的牌面</p>
+<p>【4】修改通关逻辑，未合成2048牌面也可通关</p>
+<h1 id="逆向游戏逻辑"><a href="#逆向游戏逻辑" class="headerlink" title="逆向游戏逻辑"></a>逆向游戏逻辑</h1><p>打开2048.apk安装包，发现只有一个lib\armeabi\libcocos2dcpp.so文件，可以看出游戏由Cocos2d-x引擎进行开发，主要编程语言是C++，这里因为反编译后java曾代码只有一些UI显示，所以可以判断游戏逻辑都在Native层。</p>
+<p>首先我们打开IDA导入libcocos2dcpp.so，使用shift+F12搜索类似win、game over的字样，随意点进去一个字段，并使用x进行交叉引用，看有哪些方法调用了这个字段，可以从类名中看出这些代码都没有隐藏符号，并且从下面得到的结果和字面上意思，可以合理猜测这个类应该是控制游戏逻辑的相关类，接着继续查看这个类的具体情况</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560311836804.png" alt></p>
+<h2 id="确定游戏控制类"><a href="#确定游戏控制类" class="headerlink" title="确定游戏控制类"></a>确定游戏控制类</h2><p>我们在函数窗口继续看这个类相关方法，发现了有关游戏过关、结束等逻辑的方法名</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560320654410.png" alt></p>
+<p>继续对这个wonTheGame进行跟踪，发现Playground::checkPlaygroundForEvents类方法对其进行了调用，这里我们可以从名称中看出Playground是playgroundcontroller的基类</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560320840670.png" alt></p>
+<p>再次搜索基类Playground的相关方法，可以看见都是游戏逻辑相关的方法名，有分数、牌移动、游戏开始结束等相关内容，可以确定游戏逻辑由基类Playground以及其派生类控制，下面看一下</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560319360531.png" alt></p>
+<h2 id="熟悉游戏逻辑"><a href="#熟悉游戏逻辑" class="headerlink" title="熟悉游戏逻辑"></a>熟悉游戏逻辑</h2><p>在熟悉游戏的时候，大致每次生成牌的数字都在2和4中并且在16方格中随机出现，可以在的逻辑控制类中找找看是否存在random这样的字段，Playground::addBoxRandom方法，从名称中判断应该是添加一个随机牌面相关的方法，进去看看</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560324012168.png" alt></p>
+<p>从下面函数名中可以猜测可能是在指定位置添加牌吧，下面我们具体通过动态调试验证一下</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560324675846.png" alt></p>
+<p><code>aapt.exe d bading 2048.apk |findstr package</code>即可输出包名com.estoty.game2048，然后使用IDA进行attach连接，在addBoxAtIndex下断点，然后在屏幕上向任意方向滑动后，都会执行到这里一次并产生一个新的牌</p>
+<p>接着我们在addBoxAtIndex内部的Playground::addBoxAtIndexWithLevel(int,int,bool)方法上下断点，r0是this，r1-r3存储着三个参数。我们在上面猜测这个函数是在指定位置生成牌，那么这三个参数可能包含位置、点数、是否生成这三种情况，执行完这里后，屏幕上第四个方格中生成一张点数为2的牌，如果下标从0开始那么这个3代表的位置就对上了，但是第二个1和点数2对不上，为了验证它我们将r2的值修改成0xB，结果生成了一个点数为2048的牌，可以判断r2的值是2的指数幂。验证r3所代表的是否是我们猜测的内容也很简单，修改r3为0要看牌是否生成即可，发现第三个并不代表是否生成牌的选项，但是我们了解前两个参数已经够用了。</p>
+<ul>
+<li>r1：牌生成的位置，取值范围0-15(0-0xF)</li>
+<li>r2：代表2的指数幂，运算后的结果即牌的点数</li>
+</ul>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560338988454.png" alt></p>
+<h1 id="外挂实现"><a href="#外挂实现" class="headerlink" title="外挂实现"></a>外挂实现</h1><h2 id="实现方案"><a href="#实现方案" class="headerlink" title="实现方案"></a>实现方案</h2><p>【1】通过Inline Hook技术将addBoxAtIndexWithLevel的第二个参数(点数)进行修改，即可生成任意数值的牌</p>
+<p>【2】hook导入表函数arc4random，获取调用者的信息，如果是addBoxAtIndex就返回0，即可保证第二个参数始终为1，从而只能生成牌面为2的牌</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560341008630.png" alt></p>
+<p>【3】动态/静态patch掉设置牌面点数方法_ZN3Box15setCurrentLevelEi的参数值，直接生成相应点数</p>
+<p>【4】异常hook+导入表hook结合起来进行，同第二种方法</p>
+<h3 id="方案【1】"><a href="#方案【1】" class="headerlink" title="方案【1】"></a>方案【1】</h3><p>这里我们针对方案1进行实现，利用ptrace注入+inline hook技术</p>
+<h4 id="实现流程"><a href="#实现流程" class="headerlink" title="实现流程"></a>实现流程</h4><p><img src="/2019/09/08/游戏外挂之2048破解/C:%5CUsers%5Cxiongchaochao%5CDownloads%5C%E5%9B%BE.png" alt="图"></p>
+<h4 id="实现代码"><a href="#实现代码" class="headerlink" title="实现代码"></a>实现代码</h4><p>我们先实现hook层，测试成功后接着实现ptrace注入层，这样方便测试</p>
+<p><strong>Inline Hook层</strong></p>
+<ul>
+<li>构造用户自定义函数replace_addBoxAtIndexWithLevel，实现寄存器值的修改</li>
+<li>构造原指令函数<ul>
+<li>执行原指令addBoxAtIndexWithLevel</li>
+<li>跳转回游戏正常指令流程</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>构造桩函数</p>
+<ul>
+<li>保存寄存器值</li>
+<li>跳转到用户自定义函数replace_addBoxAtIndexWithLevel</li>
+<li>还原寄存器的值</li>
+<li>跳转到原指令函数</li>
+</ul>
+</li>
+</ul>
+<p><em>具体代码细节可以看我上传在github上的源码<a href="https://github.com/xiongchaochao/InlineHook" target="_blank" rel="noopener">https://github.com/xiongchaochao/InlineHook</a>，*</em>欢迎start***</p>
+<p>我们hook这里0x7587ECE4 ，减去so模块基地址偏移0xa1ce4，对github上的源码进行小改即可，改动如下。就是如果在下一条指令下hook就会覆盖半条BL指令</p>
+<p><img src="/2019/09/08/游戏外挂之2048破解/1560580172494.png" alt></p>
+<p>这里对r2,r3可随意修改，如下r2=1，r3=0，那么HOOK完之后，执行了ADCS R2,R3，R2的值就变成了2（有进位），再经过下面的加一，就变成了3，所以最后每次生成的牌面都为8</p>
+<pre><code class="c++">/**
+ *  用户自定义的回调函数，修改r0寄存器大于300
+ */
+void EvilHookStubFunctionForIBored(pt_regs *regs)
+{
+    LOGI(&quot;In Evil Hook Stub.&quot;);
+    regs-&gt;uregs[2] = 0x1;
+    regs-&gt;uregs[3] = 0x0;
+}
+
+/**
+ *  1.Hook入口
+ */
+void ModifyIBored()
+{
+    LOGI(&quot;In IHook&#39;s ModifyIBored.&quot;);
+    void* pModuleBaseAddr = GetModuleBaseAddr(-1, &quot;libcocos2dcpp.so&quot;);
+    LOGI(&quot;libnative-lib.so base addr is 0x%X.&quot;, pModuleBaseAddr);
+    if(pModuleBaseAddr == 0)
+    {
+        LOGI(&quot;get module base error.&quot;);
+        return;
+    }
+
+    //模块基址加上HOOK点的偏移地址就是HOOK点在内存中的位置
+    uint32_t uiHookAddr = (uint32_t)pModuleBaseAddr + 0xa1ce4;
+    LOGI(&quot;uiHookAddr is %X&quot;, uiHookAddr);
+    LOGI(&quot;uiHookAddr instructions is %X&quot;, *(long *)(uiHookAddr));
+    LOGI(&quot;uiHookAddr instructions is %X&quot;, *(long *)(uiHookAddr+4));
+
+    //HOOK函数
+    InlineHook((void*)(uiHookAddr), EvilHookStubFunctionForIBored);
+}</code></pre>
+<p><strong>ptrace注入层</strong></p>
+<p>详细注入功能代码，参考我上传到github上的项目：<a href="https://github.com/xiongchaochao/ptraceInject" target="_blank" rel="noopener">https://github.com/xiongchaochao/ptraceInject</a> <strong>欢迎start</strong></p>
+<p>这里只附上，入口代码,主要是最上面三个参数的修改：</p>
+<pre><code class="c">int main(int argc, char *argv[]) {
+    char InjectModuleName[MAX_PATH] = &quot;/data/libIHook.so&quot;;    // 注入模块全路径
+    char RemoteCallFunc[MAX_PATH] = &quot;ModifyIBored&quot;;              // 注入模块后调用模块函数名称
+    char InjectProcessName[MAX_PATH] = &quot;com.estoty.game2048&quot;;                      // 注入进程名称
+
+    // 当前设备环境判断
+    #if defined(__i386__)  
+    LOGD(&quot;Current Environment x86&quot;);
+    return -1;
+    #elif defined(__arm__)
+    LOGD(&quot;Current Environment ARM&quot;);
+    #else     
+    LOGD(&quot;other Environment&quot;);
+    return -1;
+    #endif
+
+    pid_t pid = FindPidByProcessName(InjectProcessName);
+    if (pid == -1)
+    {
+        printf(&quot;Get Pid Failed&quot;);
+        return -1;
+    }    
+
+    printf(&quot;begin inject process, RemoteProcess pid:%d, InjectModuleName:%s, RemoteCallFunc:%s\n&quot;, pid, InjectModuleName, RemoteCallFunc);
+    int iRet = inject_remote_process(pid,  InjectModuleName, RemoteCallFunc,  NULL, 0);
+    //int iRet = inject_remote_process_shellcode(pid,  InjectModuleName, RemoteCallFunc,  NULL, 0);
+
+    if (iRet == 0)
+    {
+        printf(&quot;Inject Success\n&quot;);
+    }
+    else
+    {
+        printf(&quot;Inject Failed\n&quot;);
+    }
+    printf(&quot;end inject,%d\n&quot;, pid);
+    return 0;  
+}  </code></pre>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>【1】使用代码<code>android.os.Build.CPU_ABI</code>或者使用shell命令访问/proc/cpuinfo来看手机CPU架构，可以在附录中的ABI管理中查看不同架构的CPU对应的指令集，abi为armeabi-v7a对应ARMv7</p>
+<p>【2】Thumb-2指令集是4字节长度的Thumb指令集和2字节长度的Thunb指令集的混合使用</p>
+<p>【3】在4字节长度的Thumb指令中，若该指令对PC寄存器的值进行了修改，那么这条指令所在的地址一定要能整除4，否则程序会崩溃，所以如果指令地址不能整除4时我们通过NOP(BF00：Thumb-2)填充第一条指令，让我们覆盖跳转指令的地方可以被4整除，这个时候需要保存的原指令就是10字节长度了</p>
+<p>【4】执行完保存的原指令后，我们跳转回去的地址需要加1让其为奇数，防止切换回arm指令集，让编译器编译出错</p>
+<p>【5】调用RestroeThumbHookTarget/RestroeArmHookTarget删除断点的时候，是不能调用InitThumbHookInfo函数来初始化hook点信息的，这样会用修改后的指令覆盖被保存的指令</p>
+<h1 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h1><p>【1】ARM指令集切换到Thumb是通过分支执行条内存地址为奇数的指令，当然这条指令存储的位置还是偶数的，只是将这个奇数减一就可以得到指令真实地址。之后如果通过PC寄存器每次加2来得到奇数的内存地址来执行指令，所以一直都是Thumb模式，如果出现分支跳转到一个偶数指令，就会切回ARM指令集</p>
+<h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1><table>
+<thead>
+<tr>
+<th>介绍</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>相关代码应用下载链接</td>
+<td><a href="https://gslab.qq.com/portal.php?mod=attachment&amp;id=2050" target="_blank" rel="noopener">https://gslab.qq.com/portal.php?mod=attachment&amp;id=2050</a></td>
+</tr>
+<tr>
+<td>Android Arm Inline Hook</td>
+<td><a href="http://ele7enxxh.com/Android-Arm-Inline-Hook.html" target="_blank" rel="noopener">http://ele7enxxh.com/Android-Arm-Inline-Hook.html</a></td>
+</tr>
+<tr>
+<td>Android Inline Hook中的指令修复详解</td>
+<td><a href="https://gtoad.github.io/2018/07/13/Android-Inline-Hook-Fix/" target="_blank" rel="noopener">https://gtoad.github.io/2018/07/13/Android-Inline-Hook-Fix/</a></td>
+</tr>
+<tr>
+<td>ABI 管理</td>
+<td><a href="https://developer.android.com/ndk/guides/abis.html?hl=zh-cn" target="_blank" rel="noopener">https://developer.android.com/ndk/guides/abis.html?hl=zh-cn</a></td>
+</tr>
+<tr>
+<td>InlineHook功能代码</td>
+<td><a href="https://github.com/xiongchaochao/InlineHook" target="_blank" rel="noopener">https://github.com/xiongchaochao/InlineHook</a></td>
+</tr>
+<tr>
+<td>ptrace注入功能代码</td>
+<td><a href="https://github.com/xiongchaochao/ptraceInject" target="_blank" rel="noopener">https://github.com/xiongchaochao/ptraceInject</a></td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android破解/" rel="tag"># Android破解</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/05/windows样本分析之基础动态分析-一/" rel="next" title="windows样本分析之基础动态分析-一">
+                <i class="fa fa-chevron-left"></i> windows样本分析之基础动态分析-一
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/08/TX脱壳/" rel="prev" title="TX脱壳">
+                TX脱壳 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#游戏玩法"><span class="nav-number">2.</span> <span class="nav-text">游戏玩法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#破解思路"><span class="nav-number">3.</span> <span class="nav-text">破解思路</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#逆向游戏逻辑"><span class="nav-number">4.</span> <span class="nav-text">逆向游戏逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#确定游戏控制类"><span class="nav-number">4.1.</span> <span class="nav-text">确定游戏控制类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#熟悉游戏逻辑"><span class="nav-number">4.2.</span> <span class="nav-text">熟悉游戏逻辑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#外挂实现"><span class="nav-number">5.</span> <span class="nav-text">外挂实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现方案"><span class="nav-number">5.1.</span> <span class="nav-text">实现方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#方案【1】"><span class="nav-number">5.1.1.</span> <span class="nav-text">方案【1】</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实现流程"><span class="nav-number">5.1.1.1.</span> <span class="nav-text">实现流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现代码"><span class="nav-number">5.1.1.2.</span> <span class="nav-text">实现代码</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">6.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#思考"><span class="nav-number">7.</span> <span class="nav-text">思考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#附录"><span class="nav-number">8.</span> <span class="nav-text">附录</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windows病毒分析,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="目标 鉴定黑白(静态分析失败或者不准确的第二步) 简单行为分析  原理 监控样本的行为。  手动双击击执行或者输入一些命令参数来运行样本，通过监控工具来抓取样本的行为  通过沙箱监控样本运行的行为    判定样本黑白  根据样本行为和衍生物来判断样本的性质    算法流程1.简单静态分析流程 2.沙箱分析。通过开源在线沙箱或者本地沙箱进行初步行为获取 2.手动分析 实践过程1Lab03-01.ex">
+<meta name="keywords" content="windows病毒分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="windows样本分析之基础动态分析-一">
+<meta property="og:url" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="目标 鉴定黑白(静态分析失败或者不准确的第二步) 简单行为分析  原理 监控样本的行为。  手动双击击执行或者输入一些命令参数来运行样本，通过监控工具来抓取样本的行为  通过沙箱监控样本运行的行为    判定样本黑白  根据样本行为和衍生物来判断样本的性质    算法流程1.简单静态分析流程 2.沙箱分析。通过开源在线沙箱或者本地沙箱进行初步行为获取 2.手动分析 实践过程1Lab03-01.ex">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567771773227.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567771638694.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567850291979.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567850629523.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567850790762.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567863968053.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567864173410.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567864539738.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567864926290.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567864819379.png">
+<meta property="og:updated_time" content="2019-09-07T14:17:57.692Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="windows样本分析之基础动态分析-一">
+<meta name="twitter:description" content="目标 鉴定黑白(静态分析失败或者不准确的第二步) 简单行为分析  原理 监控样本的行为。  手动双击击执行或者输入一些命令参数来运行样本，通过监控工具来抓取样本的行为  通过沙箱监控样本运行的行为    判定样本黑白  根据样本行为和衍生物来判断样本的性质    算法流程1.简单静态分析流程 2.沙箱分析。通过开源在线沙箱或者本地沙箱进行初步行为获取 2.手动分析 实践过程1Lab03-01.ex">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/1567771773227.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/">
+
+
+
+
+
+  <title>windows样本分析之基础动态分析-一 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/05/windows样本分析之基础动态分析-一/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">windows样本分析之基础动态分析-一</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-05T20:08:26+08:00">
+                2019-09-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><ul>
+<li>鉴定黑白(静态分析失败或者不准确的第二步)</li>
+<li>简单行为分析</li>
+</ul>
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><ol>
+<li><p>监控样本的行为。</p>
+<ul>
+<li><p>手动双击击执行或者输入一些命令参数来运行样本，通过监控工具来抓取样本的行为</p>
+</li>
+<li><p>通过沙箱监控样本运行的行为</p>
+</li>
+</ul>
+</li>
+<li><p>判定样本黑白</p>
+<ul>
+<li>根据样本行为和衍生物来判断样本的性质</li>
+</ul>
+</li>
+</ol>
+<h1 id="算法流程"><a href="#算法流程" class="headerlink" title="算法流程"></a>算法流程</h1><p>1.简单静态分析流程</p>
+<p>2.沙箱分析。通过开源在线沙箱或者本地沙箱进行初步行为获取</p>
+<p>2.手动分析</p>
+<h1 id="实践过程1"><a href="#实践过程1" class="headerlink" title="实践过程1"></a>实践过程1</h1><p>Lab03-01.exe</p>
+<h2 id="鉴黑白"><a href="#鉴黑白" class="headerlink" title="鉴黑白"></a>鉴黑白</h2><h3 id="简单静态分析"><a href="#简单静态分析" class="headerlink" title="简单静态分析"></a>简单静态分析</h3><p>假设我们未从VT上判断出文件黑白，我们从他的其他信息和行为中找线索</p>
+<ul>
+<li><p>字符串检测</p>
+<ul>
+<li><p>HTTP请求</p>
+<p>根据<code>CONNECT %s:%i HTTP/1.0\r\n\r\n</code>和<code>www.practicalmalwareanalysis.com</code>字符特征，可以判断样本访问该站点</p>
+</li>
+<li><p>程序自启动</p>
+<p><code>SOFTWARE\Classes\http\shell\open\commandV</code>，http协议的默认处理程序，一旦进行http协议请求，就执行该程序</p>
+<p><code>Software\Microsoft\Active Setup\Installed Components\</code>，检测是否为安装的组件如果没有则进行启动该程序</p>
+<p><code>SOFTWARE\Microsoft\Windows\CurrentVersion\Run</code>开机自启动选项</p>
+</li>
+<li><p>隐藏自身</p>
+<p>vmx32to64.exe，伪装成正常程序</p>
+</li>
+<li><p>其他</p>
+<p><code>SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders</code>，将程序放入开始菜单</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2019/09/05/windows样本分析之基础动态分析-一/1567771773227.png" alt="1567771773227"></p>
+<ul>
+<li>加壳/混淆判断</li>
+</ul>
+<p>一个导入函数，但是字符串表中有很多行为，应该是加壳了</p>
+<p><img src="/2019/09/05/windows样本分析之基础动态分析-一/1567771638694.png" alt="1567771638694"></p>
+<p>PEiD扫描得出壳类型：<code>PEncrypt 3.1 Final -&gt; junkcode</code></p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>初步判断为<code>黑样本</code></p>
+<p>原因：</p>
+<p>1.加壳，大部分病毒都会进行简单或困难的加壳或混淆</p>
+<p>2.字符串表中可以看出有访问特定网站、多种自启动、隐藏自己等敏感行为</p>
+<h2 id="简答行为分析"><a href="#简答行为分析" class="headerlink" title="简答行为分析"></a>简答行为分析</h2><h3 id="沙箱分析"><a href="#沙箱分析" class="headerlink" title="沙箱分析"></a>沙箱分析</h3><p>可以从VT上的BEHAVIOR选项中看到沙箱跑出的数据</p>
+<p><img src="/2019/09/05/windows样本分析之基础动态分析-一/1567850291979.png" alt="1567850291979"></p>
+<ul>
+<li>主机感染行为</li>
+</ul>
+<ol>
+<li>主要设置了开机自启动的注册表键值</li>
+<li>还有疑似隐藏自己到C:\Users\Olivia\AppData\Local\Temp\KeJsFBhoviIbosu8hR1K.exe这里的可能</li>
+<li>互斥量WinVMX32来防止程序多开</li>
+</ol>
+<p><img src="/2019/09/05/windows样本分析之基础动态分析-一/1567850629523.png" alt="1567850629523"></p>
+<ul>
+<li>网络感染行为</li>
+</ul>
+<ol>
+<li>HTTP请求访问<a href="http://www.practicalmalwareanalysis.com，因为是联系网站已经失效" target="_blank" rel="noopener">www.practicalmalwareanalysis.com，因为是联系网站已经失效</a></li>
+</ol>
+<p><img src="/2019/09/05/windows样本分析之基础动态分析-一/1567850790762.png" alt="1567850790762"></p>
+<h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p>因为程序在分析机上未能正常运行，所以只能根据在线沙箱以前的分析数据和简单静态分析进行总结。</p>
+<p>1.添加开机自启动来运行自身</p>
+<p>2.修改文件名和存放目录来隐藏自己</p>
+<p>3.跟远程服务器通信</p>
+<h1 id="实践过程2"><a href="#实践过程2" class="headerlink" title="实践过程2"></a>实践过程2</h1><p>Lab03-04.exe</p>
+<blockquote>
+<p>直接进入行为分析</p>
+</blockquote>
+<h2 id="简单行为分析"><a href="#简单行为分析" class="headerlink" title="简单行为分析"></a>简单行为分析</h2><h3 id="沙箱分析-1"><a href="#沙箱分析-1" class="headerlink" title="沙箱分析"></a>沙箱分析</h3><p>通过VT上的瑞星沙箱，和HyBrid沙箱</p>
+<h4 id="主机感染行为"><a href="#主机感染行为" class="headerlink" title="主机感染行为"></a>主机感染行为</h4><ul>
+<li>删除文件</li>
+<li>修改Internet选项，添加信任站点</li>
+</ul>
+<p><img src="/2019/09/05/windows样本分析之基础动态分析-一/1567863968053.png" alt="1567863968053">* </p>
+<h4 id="网络感染行为"><a href="#网络感染行为" class="headerlink" title="网络感染行为"></a>网络感染行为</h4><ul>
+<li>C2通信(88.221.52.75)</li>
+<li>网页访问（216.58.205.238）</li>
+</ul>
+<p><img src="/2019/09/05/windows样本分析之基础动态分析-一/1567864173410.png" alt="1567864173410"></p>
+<h3 id="手动分析"><a href="#手动分析" class="headerlink" title="手动分析"></a>手动分析</h3><ul>
+<li>样本自删除</li>
+</ul>
+<p>手动执行后，样本消失，根据沙箱检测出的删除命令，排除样本移动到其他目录的可能</p>
+<p><img src="/2019/09/05/windows样本分析之基础动态分析-一/1567864539738.png" alt="1567864539738"></p>
+<p>根据沙箱的数据，可以在Process Monitor中进程监控里看见cmd进程的创建来执行自删除指令</p>
+<p><img src="/2019/09/05/windows样本分析之基础动态分析-一/1567864926290.png" alt="1567864926290"></p>
+<ul>
+<li>添加站点信任</li>
+</ul>
+<p>设置好过滤条件可以抓到对站点信任注册表键值的修改</p>
+<p><img src="/2019/09/05/windows样本分析之基础动态分析-一/1567864819379.png" alt="1567864819379"></p>
+<h4 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h4><p>简单的行为分析，只抓取到了部分的行为，如：</p>
+<ul>
+<li>设置注册表键值，实现Internet可信任站点修改</li>
+<li>创建cmd进程实现自删除</li>
+</ul>
+<p>其余的网络行为是未触发的</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows病毒分析/" rel="tag"># windows病毒分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/04/windows样本分析之基础静态分析-四/" rel="next" title="windows样本分析之基础静态分析-四">
+                <i class="fa fa-chevron-left"></i> windows样本分析之基础静态分析-四
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/08/游戏外挂之2048破解/" rel="prev" title="游戏外挂之2048破解">
+                游戏外挂之2048破解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#目标"><span class="nav-number">1.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原理"><span class="nav-number">2.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#算法流程"><span class="nav-number">3.</span> <span class="nav-text">算法流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践过程1"><span class="nav-number">4.</span> <span class="nav-text">实践过程1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#鉴黑白"><span class="nav-number">4.1.</span> <span class="nav-text">鉴黑白</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#简单静态分析"><span class="nav-number">4.1.1.</span> <span class="nav-text">简单静态分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">4.1.2.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简答行为分析"><span class="nav-number">4.2.</span> <span class="nav-text">简答行为分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#沙箱分析"><span class="nav-number">4.2.1.</span> <span class="nav-text">沙箱分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">4.2.2.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践过程2"><span class="nav-number">5.</span> <span class="nav-text">实践过程2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简单行为分析"><span class="nav-number">5.1.</span> <span class="nav-text">简单行为分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#沙箱分析-1"><span class="nav-number">5.1.1.</span> <span class="nav-text">沙箱分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主机感染行为"><span class="nav-number">5.1.1.1.</span> <span class="nav-text">主机感染行为</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#网络感染行为"><span class="nav-number">5.1.1.2.</span> <span class="nav-text">网络感染行为</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#手动分析"><span class="nav-number">5.1.2.</span> <span class="nav-text">手动分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#小结-2"><span class="nav-number">5.1.2.1.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

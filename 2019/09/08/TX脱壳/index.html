@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android脱壳,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="概述本片文章描述一次完整的脱壳历程，从java层到Native层 流程概述Java层 java层找到库函数的入口位置 过掉java层的反调试(解决方法在Native层：动态在isDebuggerConnected下断点)  Native层 绕过Anti IDA 双层解密JNI_OnLoad 动态调试JNI_OnLoad，得到注册的本地方法的具体位置 分析load方法找到Dex动态解密的地方并dum">
+<meta name="keywords" content="Android脱壳">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TX脱壳">
+<meta property="og:url" content="http://yoursite.com/2019/09/08/TX脱壳/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="概述本片文章描述一次完整的脱壳历程，从java层到Native层 流程概述Java层 java层找到库函数的入口位置 过掉java层的反调试(解决方法在Native层：动态在isDebuggerConnected下断点)  Native层 绕过Anti IDA 双层解密JNI_OnLoad 动态调试JNI_OnLoad，得到注册的本地方法的具体位置 分析load方法找到Dex动态解密的地方并dum">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561555704027.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561596719850.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561598371802.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561599808358.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561635493865.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561643354375.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561691320543.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561692877111.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561637165614.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561637165614.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561642997171.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561643152043.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561643169497.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561714564043.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561714669645.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561775189715.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561945707991.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561780143329.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561780375025.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561788195723.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561867476953.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561875873720.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561949893405.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561899531589.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561972641741.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561973384841.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1562030739731.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1562233660124.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1562296193659.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1562314733720.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1562316617292.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1562333761188.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/1562394890758.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/TX脱壳/282719-20180328204952517-1717220309.png">
+<meta property="og:updated_time" content="2019-10-28T10:56:46.964Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TX脱壳">
+<meta name="twitter:description" content="概述本片文章描述一次完整的脱壳历程，从java层到Native层 流程概述Java层 java层找到库函数的入口位置 过掉java层的反调试(解决方法在Native层：动态在isDebuggerConnected下断点)  Native层 绕过Anti IDA 双层解密JNI_OnLoad 动态调试JNI_OnLoad，得到注册的本地方法的具体位置 分析load方法找到Dex动态解密的地方并dum">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/08/TX脱壳/1561555704027.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/08/TX脱壳/">
+
+
+
+
+
+  <title>TX脱壳 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/08/TX脱壳/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">TX脱壳</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-08T17:28:58+08:00">
+                2019-09-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>本片文章描述一次完整的脱壳历程，从java层到Native层</p>
+<h1 id="流程概述"><a href="#流程概述" class="headerlink" title="流程概述"></a>流程概述</h1><h2 id="Java层"><a href="#Java层" class="headerlink" title="Java层"></a>Java层</h2><ol>
+<li>java层找到库函数的入口位置</li>
+<li>过掉java层的反调试(解决方法在Native层：动态在isDebuggerConnected下断点)</li>
+</ol>
+<h2 id="Native层"><a href="#Native层" class="headerlink" title="Native层"></a>Native层</h2><ol>
+<li>绕过Anti IDA</li>
+<li>双层解密JNI_OnLoad</li>
+<li>动态调试JNI_OnLoad，得到注册的本地方法的具体位置</li>
+<li>分析load方法找到Dex动态解密的地方并dump</li>
+</ol>
+<h1 id="详细过程"><a href="#详细过程" class="headerlink" title="详细过程"></a>详细过程</h1><p>这次脱壳用的测试机是Dalvik虚拟机4.4版本，所以底层用的libdvm.so库文件。</p>
+<h2 id="壳特征"><a href="#壳特征" class="headerlink" title="壳特征"></a>壳特征</h2><p>有过壳经验的分析人员可以从安装包的特征文件和lib下的libshellxxx.so中看出是TX加固过的壳</p>
+<p><img src="/2019/09/08/TX脱壳/1561555704027.png" alt></p>
+<h2 id="java层"><a href="#java层" class="headerlink" title="java层"></a>java层</h2><h3 id="实锤加壳"><a href="#实锤加壳" class="headerlink" title="实锤加壳"></a>实锤加壳</h3><p>在manifest中的入口类LoadingActivity是找不到的</p>
+<pre><code class="xml">&lt;application android:theme=&quot;@style/AppTheme_Main&quot; android:label=&quot;@string/app_name&quot; android:icon=&quot;@mipmap/icon_launcher&quot; android:name=&quot;com.tencent.StubShell.TxAppEntry&quot; android:allowBackup=&quot;false&quot; android:vmSafeMode=&quot;true&quot; android:largeHeap=&quot;true&quot; android:supportsRtl=&quot;true&quot; android:extractNativeLibs=&quot;true&quot; android:networkSecurityConfig=&quot;@xml/network_security_config&quot; android:appComponentFactory=&quot;androidx.core.app.CoreComponentFactory&quot;&gt;
+
+...........
+&lt;activity android:name=&quot;com.warmcar.nf.x.ui.activity.main.LoadingActivity&quot; android:launchMode=&quot;singleTask&quot;&gt;
+            &lt;intent-filter&gt;
+                &lt;action android:name=&quot;android.intent.action.MAIN&quot;/&gt;
+                &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot;/&gt;
+            &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+</code></pre>
+<h3 id="初探attachBaseContext"><a href="#初探attachBaseContext" class="headerlink" title="初探attachBaseContext"></a>初探attachBaseContext</h3><p>既然入口类被隐藏了，我们根据调用关系找到启动入口类的地方，即Application这个类，我们主要需要关注的是attachBaseContext方法，这个在onCreate方法之前执行的</p>
+<h3 id="弃用jadx"><a href="#弃用jadx" class="headerlink" title="弃用jadx"></a>弃用jadx</h3><p>这个方法首先调用e(context)进行了调试检查，接着在b(this)方法中进行了一些库地址的初始化操作</p>
+<p>接着在 d(context)方法中加载不存在的库nfix、ufix，并且调用了本地方法fixNativeResource、fixUnityResource，从名称上看应该是修复操作</p>
+<p>接下来主要是tx的SDK崩溃信息收集模块的功能，这块可以省略，主要看最后一个a((Context) this)方法，find Usage跳转过去发现调用了e()方法和load(f)方法</p>
+<pre><code class="javascript">
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(context);
+        e(context);
+        SystemClassLoaderInjector.fixAndroid(context, this);
+        if (b(this)) {
+            d(context);
+            this.k = new Handler(getMainLooper());
+            String str = &quot;3.0.0.0&quot;;
+            String str2 = &quot;900015015&quot;;
+            UserStrategy userStrategy = new UserStrategy(this);
+            userStrategy.setAppVersion(str);
+            CrashReport.setSdkExtraData(this, str2, str);
+            CrashReport.initCrashReport(this, str2, false, userStrategy);
+            new Thread(new d(this)).start();
+            a((Context) this);
+        }
+    }
+
+private void d(Context context) {
+        AssetManager assets = context.getAssets();
+        String str = context.getApplicationInfo().sourceDir;
+        try {
+            System.loadLibrary(&quot;nfix&quot;);
+            fixNativeResource(assets, str);
+        } catch (Throwable th) {
+        }
+        try {
+            System.loadLibrary(&quot;ufix&quot;);
+            fixUnityResource(assets, str);
+        } catch (Throwable th2) {
+        }
+    }
+
+public void a(Context context) {
+        e();
+        load(f);
+    }
+</code></pre>
+<p>而在jadx这里e方法并未生成相应伪代码，反汇编指令倒是没有错，为了方便分析，开启我们的jeb继续分析</p>
+<p><img src="/2019/09/08/TX脱壳/1561596719850.png" alt></p>
+<h3 id="接盘侠：jeb探索首次加载so库"><a href="#接盘侠：jeb探索首次加载so库" class="headerlink" title="接盘侠：jeb探索首次加载so库"></a>接盘侠：jeb探索首次加载so库</h3><p>接续分析e();方法，根据反编译后的伪代码，可以看到这里第一次进行了so库的加载，加载shell</p>
+<p><img src="/2019/09/08/TX脱壳/1561598371802.png" alt></p>
+<p>还有一个紧跟着的本地的load方法，这个需要我们在Native层进行分析，参数是shella-3.0.0.0.so文件路径</p>
+<h3 id="寥寥几句onCreate"><a href="#寥寥几句onCreate" class="headerlink" title="寥寥几句onCreate"></a>寥寥几句onCreate</h3><p>分析完attachBaseContext，接着分析onCreate</p>
+<p>可以看到出了一个反调试和崩溃信息收集，我们的关注重点就在本地方法runCreate</p>
+<pre><code class="java">public void onCreate() {
+        TxAppEntry.isDebugger(((Context)this));
+        TxAppEntry.runCreate(((Context)this));
+        this.sdkcrash(TxAppEntry.context);
+    }
+
+private static native void runCreate(Context arg0) {
+    }</code></pre>
+<h3 id="再度回顾加壳包目录"><a href="#再度回顾加壳包目录" class="headerlink" title="再度回顾加壳包目录"></a>再度回顾加壳包目录</h3><p>加固主要行为都在这里，可以从目录名称看出，多个反调试类</p>
+<p>刨去没什么太紧要的类，只有一个TxReceiver类值得专注</p>
+<p><img src="/2019/09/08/TX脱壳/1561599808358.png" alt></p>
+<p>通过交叉引用，并未发现有地方注册广播来执行这里，排除静态注册，剩下只有动态注册可能，都需要Native层的分析。而且他的回调方法onReceive的内部实现是通过本地方法reciver实现的，是需要第二个关注的点</p>
+<pre><code class="java">public class TxReceiver extends BroadcastReceiver {
+    public static String TX_RECIEVER;
+
+    static {
+        TxReceiver.TX_RECIEVER = &quot;com.tencent.StubShell.TxReceiver&quot;;
+    }
+
+    public TxReceiver() {
+        super();
+    }
+
+    public void onReceive(Context arg1, Intent arg2) {
+        TxAppEntry.receiver(arg2);
+    }
+}
+######################################################TxAppEntry.java
+public static void receiver(Intent arg0) {
+    TxAppEntry.reciver(arg0);
+}
+
+private static native void reciver(Intent arg0) {
+}</code></pre>
+<h3 id="短暂小结，再度启程"><a href="#短暂小结，再度启程" class="headerlink" title="短暂小结，再度启程"></a>短暂小结，再度启程</h3><p>壳的分析基本到这里暂停下来</p>
+<p><strong>主要分析结果</strong>：</p>
+<p>​    找到了唯一一个要加载的库shella3.0.0.0.so，根据分析流程继续分析native层的load、runCreate方法</p>
+<p><strong>留下的疑惑</strong>：</p>
+<p>​    修复ufix、nfix是否得到调用</p>
+<p>​    广播行为</p>
+<h2 id="Native层-1"><a href="#Native层-1" class="headerlink" title="Native层"></a>Native层</h2><p>分析shella3.0.0.so，首次加载的so库</p>
+<p><strong>分析目标</strong></p>
+<ol>
+<li><p>本地方法runCreate</p>
+</li>
+<li><p>java层修复ufix、nfix的fixNativeResource、fixUnityResource方法是否得到调用，做了哪些行为</p>
+</li>
+<li><p>实锤广播注册，探索广播行为</p>
+</li>
+</ol>
+<h3 id="出师未捷，对抗IDA"><a href="#出师未捷，对抗IDA" class="headerlink" title="出师未捷，对抗IDA"></a>出师未捷，对抗IDA</h3><p>IDA6.8打开libshella-3.0.0.0.so弹出未识别的节格式，反编译失败，什么东西都没有！这不禁引发了我对人生的思考，是对抗反编译吗、还是对抗IDA呢？这是我需要探索的问题</p>
+<p><img src="/2019/09/08/TX脱壳/1561635493865.png" alt></p>
+<p><img src="/2019/09/08/TX脱壳/1561643354375.png" alt></p>
+<p>使用010edit打开so文件，可以看到解析文件是没有问题的，但是text、init等个别节头表内的数据都被抹空了，个别节头没有，如.dynstr、.dynsym</p>
+<h4 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h4><p>【1】如果IDA根据节数据进行反汇编，这里数据都为空，确实会反编译失败，那么如何恢复这些节表呢？但是在看到参考【4】中文章的时候，根据之前使用经验得出一些想法，<strong>IDA在识别节头失败后会去通过程序头表来进行分析</strong></p>
+<p>【2】上面这种报错：<strong>检测出不识别的section格式</strong>导致终止反编译的行为很明显是<strong>对抗IDA</strong>这种反编译工具的，这也回答了上面需要探索的问题。</p>
+<p>​    为了解决其对抗IDA行为，我们这里直接将节内数据置空或者将包含字符的节数据置0，让他识别无意义或非法的节声明，接着使用程序头来进行分析即可。最终定位到.dynsym表的s_size字段，将这个字段置0即可</p>
+<p><img src="/2019/09/08/TX脱壳/1561691320543.png" alt></p>
+<h3 id="Anti不能停：JNI-OnLoad加密"><a href="#Anti不能停：JNI-OnLoad加密" class="headerlink" title="Anti不能停：JNI_OnLoad加密"></a>Anti不能停：JNI_OnLoad加密</h3><p>过掉AntiIDA后，再次加载so文件，可以看到导出JNI_OnLoad函数已经被加密了（虚拟内存地址=0x274C），那么合理向上推导，只能在.init节或者.init_array节中</p>
+<p>接下来的目标就是找到init、init_array节所在的地址</p>
+<p><img src="/2019/09/08/TX脱壳/1561692877111.png" alt></p>
+<h4 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h4><p>【1】修复section节头</p>
+<p>【2】动态调试so，通过在linker.so上下断点</p>
+<p><img src="/2019/09/08/TX脱壳/1561637165614.png" alt></p>
+<h3 id="section修复，觅得init-array"><a href="#section修复，觅得init-array" class="headerlink" title="section修复，觅得init_array"></a>section修复，觅得init_array</h3><p>修复之前多个节都是置空的，还有个别节错误数据来Anti IDA</p>
+<p><img src="/2019/09/08/TX脱壳/1561637165614.png" alt></p>
+<p>通过<a href="https://github.com/WangYinuo/FixElfSection" target="_blank" rel="noopener">开源代码</a>对so文件进行修复后，在linux平台用readelf可以看到已经将很多节头的偏移恢复了，</p>
+<p><img src="/2019/09/08/TX脱壳/1561642997171.png" alt></p>
+<p>在ida6.8打开时，首先出现下面两个弹窗中的出现的错误，全部确认</p>
+<p><img src="/2019/09/08/TX脱壳/1561643152043.png" alt></p>
+<p><img src="/2019/09/08/TX脱壳/1561643169497.png" alt></p>
+<p>我们根据觅得的init_array地址，抱着兴奋的情绪进行G跳转到0x3e84，这里切记别乱改数据类型，这里应该是<strong>DCD</strong>代表双字，代表的地址是0x944。</p>
+<blockquote>
+<p>这里我犯了个错，由于不太熟吧，乱改数据类型，改成DCB字节型，结果转成代码后就懵了，在心灰意冷下我打开了IDA7.2，看到下面那个图，一度让我准备和IDA 6.8 say 拜拜。但是由于7.2 F5大法不管用（原因暂时未知），6.8还是很棒的，还是和它做好基友吧</p>
+</blockquote>
+<p><img src="/2019/09/08/TX脱壳/1561714564043.png" alt></p>
+<p>这里要是用IDA7.2版本，他这里会识别出init节并标记（感觉棒棒哒）</p>
+<p><img src="/2019/09/08/TX脱壳/1561714669645.png" alt></p>
+<h3 id="通读伪代码，分析init-array"><a href="#通读伪代码，分析init-array" class="headerlink" title="通读伪代码，分析init_array"></a>通读伪代码，分析init_array</h3><p>这里主要分析出：</p>
+<ul>
+<li>解密算法是从0x1000开始，对0x2AB4字节数据进行解密(JNI_OnLoad地址为0x274c必然被包含在内)</li>
+<li>调用JNI_OnLoad</li>
+</ul>
+<p>分析出解密算法，可以自己写脚本进行解密，这里我们选择另外一种，往下看</p>
+<p><img src="/2019/09/08/TX脱壳/1561775189715.png" alt></p>
+<h3 id="另辟蹊径，解密JNI-OnLoad"><a href="#另辟蹊径，解密JNI-OnLoad" class="headerlink" title="另辟蹊径，解密JNI_OnLoad"></a>另辟蹊径，解密JNI_OnLoad</h3><p><strong>思路</strong>：so库一经加载到内存后，要处于解密后的状态才可以正常被程序调用，所以从内存中dump出shella-3.0.0.0.so文件，即完成对JNI_Onload解密的操作</p>
+<blockquote>
+<p>无意之举吧，：）</p>
+<p>当时准备通过调试获取init_array内存地址的时候没有成功，当时想着dump下so文件应该包含有解密后的节头表，后来看到一篇文章结合ELF装载知识才知道节头表并不会被装载进内存更谈不上dump下来，但是用IDA打开后的JNI_OnLoad确是解密后的</p>
+</blockquote>
+<p>解密脚本，具体内存地址和加载进内存的段长度，需要自己调试的时候Ctrl+S自己看和计算</p>
+<pre><code class="c">static main()
+{
+    auto i,fp;
+    fp = fopen(&quot;d:\\dump&quot;,&quot;wb&quot;);
+    auto start = 0x75FFD000;
+    auto size = 32768;
+    for(i=start;i&lt;start+size;i++)
+    {
+        fputc(Byte(i),fp);
+    }
+}</code></pre>
+<h3 id="真实调用"><a href="#真实调用" class="headerlink" title="真实调用"></a>真实调用</h3><p>在动态调试的过程中，调用JNI_OnLoad方法的地方不是init_array节内，而是libdvm.so文件中的dvmLoadNativeCode方法。</p>
+<p><img src="/2019/09/08/TX脱壳/1561945707991.png" alt></p>
+<h3 id="分析不能停，探索JNI-OnLoad"><a href="#分析不能停，探索JNI-OnLoad" class="headerlink" title="分析不能停，探索JNI_OnLoad"></a>分析不能停，探索JNI_OnLoad</h3><h4 id="初遇小坑"><a href="#初遇小坑" class="headerlink" title="初遇小坑"></a>初遇小坑</h4><p>图中圈起来的函数，最终跳到类似0x3FB8地址出的地方，为什么这个地方的函数地址是找不到的呢？</p>
+<p><img src="/2019/09/08/TX脱壳/1561780143329.png" alt></p>
+<p><img src="/2019/09/08/TX脱壳/1561780375025.png" alt></p>
+<h4 id="蓦然回首，原来是重定位"><a href="#蓦然回首，原来是重定位" class="headerlink" title="蓦然回首，原来是重定位"></a>蓦然回首，原来是重定位</h4><p>由于这里调用的是第三方库函数，这里就用到了PLT表，每次调用第三方库函数都会跳到PLT条目中。这个表有关第三方函数的每一个条目都指向了GOT表条目的值，第一次访问第三方库函数的时候，实际上去执行了解析函数，将第三方库函数的内存地址存储到GOT表内并且调用，后面再次执库函数的时候，在PLT条目中就会直接执行到第三方库函数的内存地址处，而不用再次解析。</p>
+<p>所以上面之所以找不到库函数地址，是因为重定位后被改写后的内存地址，在静态文件中是不能识别的。</p>
+<p>绕过也是很简单的，因为我们解密的数据长度有限，我们将解密部分替换到原来的shella-3.0.0.0.so文件中即可，再次打开如下图所示，都是一些偏移可以被IDA识别出来</p>
+<p><img src="/2019/09/08/TX脱壳/1561788195723.png" alt></p>
+<h4 id="再现加密"><a href="#再现加密" class="headerlink" title="再现加密"></a>再现加密</h4><p>第一次解密中的行为，这里i本身就是libshella-3.0.0.0.so文件的内存基址，这里将地址存进dword_4008变量中</p>
+<p><img src="/2019/09/08/TX脱壳/1561867476953.png" alt></p>
+<p>这里其实就是读取shella-3.0.0.0.so文件的名称到变量中</p>
+<p><img src="/2019/09/08/TX脱壳/1561875873720.png" alt=" "></p>
+<p>接着将得到的libname和一个偏移值0x6D88（刚好指向libshella-3.0.0.0.so文件尾部附加数据开始的位置）作为参数传进函数内，执行以下操作</p>
+<ul>
+<li>总共三次从尾部读取所有数据到内存，并进行解密运算</li>
+<li></li>
+</ul>
+<p><img src="/2019/09/08/TX脱壳/1561949893405.png" alt></p>
+<h3 id="真JNI-OnLoad"><a href="#真JNI-OnLoad" class="headerlink" title="真JNI_OnLoad"></a>真JNI_OnLoad</h3><p>这里调用了dlsym来在so文件中找到JNI_Onload符号地址并进行调用。</p>
+<p>分析到这里其实除了之前的解密操作，我们并没有看到任何动态注册本地方法的地方，那么结合这里出现符号调用可以大胆猜想，这里可能会是二次解密后得到的JNI_OnLoad方法的源码位置，上面分析的应该只是一层加密的壳JNI_OnLoad方法，下面根据猜想进行小心求证</p>
+<p><img src="/2019/09/08/TX脱壳/1561899531589.png" alt></p>
+<p>动态调试跟进解密后的JNI_OnLoad方法</p>
+<p>这里将壳入口类名作为参数传进函数，下面判断如果返回结果为0则打印出注册本地方法失败这样的字符串</p>
+<p><img src="/2019/09/08/TX脱壳/1561972641741.png" alt></p>
+<p>根据传入壳的入口类名作为参数进行类定位和注册本地方法</p>
+<p><img src="/2019/09/08/TX脱壳/1561973384841.png" alt></p>
+<h3 id="惊现：0x35C"><a href="#惊现：0x35C" class="headerlink" title="惊现：0x35C"></a>惊现：0x35C</h3><p><img src="/2019/09/08/TX脱壳/1562030739731.png" alt></p>
+<p>发现偏移0x35C，这正是registerNatives相对于JNINativeInterface的偏移。他的第三个参数是<code>JNINativeMethod</code>结构体数组，第四个参数就是结构体数组的长度，注册方法数量。只要通过解析JNINativeMethod结构体即可得到注册本地方法的真实地址</p>
+<pre><code class="c">typedef struct {
+    const char* name;
+    const char* signature;
+    void* fnPtr;
+} JNINativeMethod;</code></pre>
+<h4 id="解析本地方法"><a href="#解析本地方法" class="headerlink" title="解析本地方法"></a>解析本地方法</h4><p>注册方法数量为5。</p>
+<p>本地方法对应内存地址</p>
+<p>load    0x75700B1D</p>
+<p>runCreate    0x756fc469</p>
+<p>changeEnv    0x756FB37D</p>
+<p>receiver    0x756f7621</p>
+<p>txEntries    0x756FB0F9</p>
+<pre><code>0B 9E 70 75 10 9E 70 75  1D 0B 70 75 2D 9E 70 75
+10 9E 70 75 69 C4 6F 75  37 9E 70 75 10 9E 70 75
+7D B3 6F 75 41 9E 70 75  49 9E 70 75 21 76 6F 75
+65 9E 70 75 6F 9E 70 75  F9 B0 6F 75 </code></pre><h3 id="骤现异常"><a href="#骤现异常" class="headerlink" title="骤现异常"></a>骤现异常</h3><p>要分析上面本地方法，就需要配合动态调试综合来进行。但是当我们在load方法上下断点后，程序并不能执行到这里，从日志中反馈一个<code>signal 11</code>的错误，并且程序也不能正常跑起来，弹出应用已经停止的窗口。</p>
+<p>思考：我这里为了调试，第一：只是将AndroidManifest.xml文件添加了一个可调式属性。第二注释掉了几个public.xml中的几个无关属性防止反编译失败。第三就是签上了自定义签名。怎么会出现signal 11</p>
+<p><img src="/2019/09/08/TX脱壳/1562233660124.png" alt></p>
+<p>在网上找到一些类似的解决方法，先用addr2line命令定位出错的地方在库文件的什么地方，根据栈回溯backtrace打印出的内容来定位：<code>arm-none-linux-gnueabi-addr2line.exe 00022108 -e libc.so</code>，返回结果为<code>??:?</code></p>
+<p>这里我们卡在了脱壳的过程中，该解密的区段都已经解密成功了，就在即将要开始调用java层的native方法的时候，这里出现signal 11的错误，怎么办呢？</p>
+<h3 id="退一步海阔天空，注入大法好"><a href="#退一步海阔天空，注入大法好" class="headerlink" title="退一步海阔天空，注入大法好"></a>退一步海阔天空，注入大法好</h3><p>虽然暂时无法确定出问题的细节，但是大致方向是可以把握的：<strong>因为重打包后，程序出现崩溃</strong>。</p>
+<p>为什么要重打包？因为要要修改AndroidManifest.xml文件增加可调式属性，否则jdb无法启动应用。</p>
+<p>那么有办法替代修改调试属性的操作吗？有，参考【9】，init注入或者xposed。这里直接用写好的工具<a href="https://github.com/wpvsyou/mprop" target="_blank" rel="noopener">mprop</a>，执行<code>./mprop ro.debuggable 1</code>即可。</p>
+<h4 id="绕过反调试，手动绕过isDebuggerConnected"><a href="#绕过反调试，手动绕过isDebuggerConnected" class="headerlink" title="绕过反调试，手动绕过isDebuggerConnected"></a>绕过反调试，手动绕过isDebuggerConnected</h4><p>当我们开始调试的时候，其实java层有一个反调试，就在壳代码中，最开始是通过反编译smali代码，删除相应代码来对抗它的，但是因为反编译后会出现程序异常，我们这里通过mprop绕过，接下来就需要绕过这里的反调试。</p>
+<p>思路：</p>
+<p><img src="/2019/09/08/TX脱壳/1562296193659.png" alt></p>
+<p>【1】patch掉该处代码，重新修改dex文件头的signature和checksum</p>
+<p>【2】动态修改isDebuggerConnected的返回值，参考【10】</p>
+<p>这里我用的第二种方法</p>
+<h3 id="load：核心逻辑"><a href="#load：核心逻辑" class="headerlink" title="load：核心逻辑"></a>load：核心逻辑</h3><p>顺利到在load函数中下上断点。</p>
+<p><img src="/2019/09/08/TX脱壳/1562314733720.png" alt></p>
+<p>下面主要分析核心内容。</p>
+<ul>
+<li>获取odex基址，0x750DD000</li>
+</ul>
+<p><img src="/2019/09/08/TX脱壳/1562316617292.png" alt></p>
+<ul>
+<li>获取dex文件偏移、地址，并且解密dex头部数据到内存中</li>
+</ul>
+<p><img src="/2019/09/08/TX脱壳/1562333761188.png" alt></p>
+<ul>
+<li>根据解密后的DEX头部0xE0字节数据+DEX偏移指向的剩余部分数据，结合起来就是原始DEX文件</li>
+</ul>
+<p>dump解密后的头部0xe0字节数据</p>
+<pre><code class="c">static main(void)
+{
+    auto fp, begin, end, ptr;
+    fp = fopen(&quot;d:\\header.dex&quot;, &quot;wb&quot;);
+    begin = 0x74fd7000;
+    len = 0xe0;
+    for ( ptr = begin; ptr &lt; begin+len; ptr ++ )
+        fputc(Byte(ptr), fp);
+}</code></pre>
+<p>ida脚本打印ODEX文件在内存中的所有数据</p>
+<pre><code class="c">static main(void)
+{
+    auto fp, begin, end, ptr;
+    fp = fopen(&quot;d:\\dump.odex&quot;, &quot;wb&quot;);
+    begin = 0x74fd7000;
+    end = 0x75b2f000;
+    for ( ptr = begin; ptr &lt; end; ptr ++ )
+        fputc(Byte(ptr), fp);
+}</code></pre>
+<ul>
+<li>dump出Dex header和整个ODEX文件数据后，然后根据Dex Header中的file_size字段dump出Dex文件，接着用正确的Dex Header头替换错误的头部即可(010edit：ctrl+shift+a，使用select Range即可)</li>
+</ul>
+<p><img src="/2019/09/08/TX脱壳/1562394890758.png" alt></p>
+<h2 id="脱壳思路"><a href="#脱壳思路" class="headerlink" title="脱壳思路"></a>脱壳思路</h2><ol>
+<li><p>搜索DEX文件的magic字符<code>64 65 78 0a 30 33 35</code>，截取前0xE0长度的字符并dump到classes.dex本地文件中。获取偏移0x20处的文件大小长度。</p>
+</li>
+<li><p>接着搜索/proc/<pid>/maps获取odex的内存基址，根据下面计算，得到dex文件偏移地址。a1+0x6C=data_off，a1+0x68=data_size</pid></p>
+</li>
+</ol>
+<p><img src="/2019/09/08/TX脱壳/282719-20180328204952517-1717220309.png" alt=" "></p>
+<ol start="3">
+<li>dex偏移 + ODex基址 + 0x28即Dex文件内存地址。结合文件大小dump出dex文件数据，接着去除前0xE0字节数据，将剩余内容写入classes.dex文件中</li>
+</ol>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>【1】IDA在识别节头出错的情况下，会去识别程序头继续分析</p>
+<p>【2】ELF基础：ELF节头表不能被装载进内存。由于ELF程序装载过程中只用到了程序头表</p>
+<p>【3】#define HIDWORD(l) ((DWORD)(((DWORDLONG)(l) &gt;&gt; 32) &amp; 0xFFFFFFFF))</p>
+<p>【4】<code>Alt+S</code>：修改段属性，将需要保存的段内存勾上loader选项，<code>TakeMemorySnapshot(1);</code>：IDC语句，直接打下内存快照</p>
+<p>【5】0x28为odex文件格式中dex_header的相对偏移地址，所以(odexAddr + 0x28)为该odex文件格式中dex header的绝对地址</p>
+<p>总的来说，是一次马马虎虎的脱壳路程，但是从结果看还是成功的。中途出现很多问题，耐心是必须的。不足也是很多的：</p>
+<ul>
+<li>JNI本地方法注册调用逻辑不熟悉，过程中的很多地方是参考其他文章学习到的。</li>
+<li>伪代码也不是完全弄懂了，很多代码细节是模糊的</li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>【1】国内众多加固厂商存在有各自标志性的加固文件分析的时候可以快速识别</p>
+<p>【2】<a href="https://pkiller.com/android/ELF的dump及修复思路/" target="_blank" rel="noopener">ELF的dump及修复思路</a></p>
+<p>【3】<a href="https://github.com/WangYinuo/FixElfSection" target="_blank" rel="noopener">section开源修复代码</a></p>
+<p>【4】<a href="https://www.cnblogs.com/goodhacker/p/8666217.html" target="_blank" rel="noopener">乐固壳分析</a></p>
+<p>【5】<a href="https://bbs.pediy.com/thread-218782.htm" target="_blank" rel="noopener">[原创]乐固libshella 2.10.1分析笔记</a></p>
+<p>【6】<a href="https://blog.csdn.net/Luoshengyang/article/details/8923483" target="_blank" rel="noopener">Dalvik虚拟机JNI方法的注册过程分析</a></p>
+<p>【7】<a href="https://my.oschina.net/jalen1991/blog/1870774" target="_blank" rel="noopener">乐固2.8</a></p>
+<p>【8】<a href="https://blog.csdn.net/tankai19880619/article/details/9004619" target="_blank" rel="noopener">Fatal signal 11问题的解决方法</a></p>
+<p>【9】<a href="https://blog.csdn.net/hp910315/article/details/82769506" target="_blank" rel="noopener">Android 「动态分析」打开调试开关的三种方法</a></p>
+<p>【10】<a href="https://blog.csdn.net/QQ1084283172/article/details/78237571" target="_blank" rel="noopener">手动绕过百度加固Debug.isDebuggerConnected反调试的方法</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android脱壳/" rel="tag"># Android脱壳</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/08/游戏外挂之2048破解/" rel="next" title="游戏外挂之2048破解">
+                <i class="fa fa-chevron-left"></i> 游戏外挂之2048破解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/08/ptrace注入(shellcode)/" rel="prev" title="ptrace注入(shellcode)">
+                ptrace注入(shellcode) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#流程概述"><span class="nav-number">2.</span> <span class="nav-text">流程概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java层"><span class="nav-number">2.1.</span> <span class="nav-text">Java层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native层"><span class="nav-number">2.2.</span> <span class="nav-text">Native层</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#详细过程"><span class="nav-number">3.</span> <span class="nav-text">详细过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#壳特征"><span class="nav-number">3.1.</span> <span class="nav-text">壳特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#java层"><span class="nav-number">3.2.</span> <span class="nav-text">java层</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实锤加壳"><span class="nav-number">3.2.1.</span> <span class="nav-text">实锤加壳</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#初探attachBaseContext"><span class="nav-number">3.2.2.</span> <span class="nav-text">初探attachBaseContext</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#弃用jadx"><span class="nav-number">3.2.3.</span> <span class="nav-text">弃用jadx</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接盘侠：jeb探索首次加载so库"><span class="nav-number">3.2.4.</span> <span class="nav-text">接盘侠：jeb探索首次加载so库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#寥寥几句onCreate"><span class="nav-number">3.2.5.</span> <span class="nav-text">寥寥几句onCreate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#再度回顾加壳包目录"><span class="nav-number">3.2.6.</span> <span class="nav-text">再度回顾加壳包目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#短暂小结，再度启程"><span class="nav-number">3.2.7.</span> <span class="nav-text">短暂小结，再度启程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native层-1"><span class="nav-number">3.3.</span> <span class="nav-text">Native层</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#出师未捷，对抗IDA"><span class="nav-number">3.3.1.</span> <span class="nav-text">出师未捷，对抗IDA</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#思考"><span class="nav-number">3.3.1.1.</span> <span class="nav-text">思考</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Anti不能停：JNI-OnLoad加密"><span class="nav-number">3.3.2.</span> <span class="nav-text">Anti不能停：JNI_OnLoad加密</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#解决思路"><span class="nav-number">3.3.2.1.</span> <span class="nav-text">解决思路</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#section修复，觅得init-array"><span class="nav-number">3.3.3.</span> <span class="nav-text">section修复，觅得init_array</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通读伪代码，分析init-array"><span class="nav-number">3.3.4.</span> <span class="nav-text">通读伪代码，分析init_array</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#另辟蹊径，解密JNI-OnLoad"><span class="nav-number">3.3.5.</span> <span class="nav-text">另辟蹊径，解密JNI_OnLoad</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#真实调用"><span class="nav-number">3.3.6.</span> <span class="nav-text">真实调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分析不能停，探索JNI-OnLoad"><span class="nav-number">3.3.7.</span> <span class="nav-text">分析不能停，探索JNI_OnLoad</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#初遇小坑"><span class="nav-number">3.3.7.1.</span> <span class="nav-text">初遇小坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#蓦然回首，原来是重定位"><span class="nav-number">3.3.7.2.</span> <span class="nav-text">蓦然回首，原来是重定位</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#再现加密"><span class="nav-number">3.3.7.3.</span> <span class="nav-text">再现加密</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#真JNI-OnLoad"><span class="nav-number">3.3.8.</span> <span class="nav-text">真JNI_OnLoad</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#惊现：0x35C"><span class="nav-number">3.3.9.</span> <span class="nav-text">惊现：0x35C</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#解析本地方法"><span class="nav-number">3.3.9.1.</span> <span class="nav-text">解析本地方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#骤现异常"><span class="nav-number">3.3.10.</span> <span class="nav-text">骤现异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#退一步海阔天空，注入大法好"><span class="nav-number">3.3.11.</span> <span class="nav-text">退一步海阔天空，注入大法好</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#绕过反调试，手动绕过isDebuggerConnected"><span class="nav-number">3.3.11.1.</span> <span class="nav-text">绕过反调试，手动绕过isDebuggerConnected</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#load：核心逻辑"><span class="nav-number">3.3.12.</span> <span class="nav-text">load：核心逻辑</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#脱壳思路"><span class="nav-number">3.4.</span> <span class="nav-text">脱壳思路</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

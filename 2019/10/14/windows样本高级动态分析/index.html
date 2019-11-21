@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windows病毒分析,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前置知识用户模式调试和内核模式调试区别：在用户模式调试普通应用程序的时候，因为系统会将每个应用进程进行隔互不影响，所以你个被调试的程序下断点并不影响其他程序和系统的运行。 但是内核调试就不一样的，系统只有一个内核，所有应用程序的执行都是在底层由内核来调度的，如果给内核下断点，整个系统就停住了，所以需要两个系统，一个运行调试器另一个运行被调试的代码。 软件断点实现方式：通过重写指令首个字节为0xcc">
+<meta name="keywords" content="windows病毒分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="windows样本高级动态分析">
+<meta property="og:url" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前置知识用户模式调试和内核模式调试区别：在用户模式调试普通应用程序的时候，因为系统会将每个应用进程进行隔互不影响，所以你个被调试的程序下断点并不影响其他程序和系统的运行。 但是内核调试就不一样的，系统只有一个内核，所有应用程序的执行都是在底层由内核来调度的，如果给内核下断点，整个系统就停住了，所以需要两个系统，一个运行调试器另一个运行被调试的代码。 软件断点实现方式：通过重写指令首个字节为0xcc">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571131371574.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571132060984.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571132808362.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571133048818.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571134007134.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571217170581.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571218711204.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571219843372.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571221373239.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571222702986.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571223793560.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571224748179.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571225171930.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571225365486.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571225570026.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571225706884.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571134498285.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571200878352.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571208550481.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571210485738.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571211011571.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571212084572.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571213128738.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571213711579.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571214052546.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571215095130.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571215119810.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571216490697.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571217386136.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571217509986.png">
+<meta property="og:updated_time" content="2019-10-16T11:56:42.253Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="windows样本高级动态分析">
+<meta name="twitter:description" content="前置知识用户模式调试和内核模式调试区别：在用户模式调试普通应用程序的时候，因为系统会将每个应用进程进行隔互不影响，所以你个被调试的程序下断点并不影响其他程序和系统的运行。 但是内核调试就不一样的，系统只有一个内核，所有应用程序的执行都是在底层由内核来调度的，如果给内核下断点，整个系统就停住了，所以需要两个系统，一个运行调试器另一个运行被调试的代码。 软件断点实现方式：通过重写指令首个字节为0xcc">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/14/windows样本高级动态分析/1571131371574.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/10/14/windows样本高级动态分析/">
+
+
+
+
+
+  <title>windows样本高级动态分析 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/14/windows样本高级动态分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">windows样本高级动态分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-10-14T10:46:54+08:00">
+                2019-10-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h1><h2 id="用户模式调试和内核模式调试区别："><a href="#用户模式调试和内核模式调试区别：" class="headerlink" title="用户模式调试和内核模式调试区别："></a>用户模式调试和内核模式调试区别：</h2><p>在用户模式调试普通应用程序的时候，因为系统会将每个应用进程进行隔互不影响，所以你个被调试的程序下断点并不影响其他程序和系统的运行。</p>
+<p>但是内核调试就不一样的，系统只有一个内核，所有应用程序的执行都是在底层由内核来调度的，如果给内核下断点，整个系统就停住了，所以需要两个系统，一个运行调试器另一个运行被调试的代码。</p>
+<h2 id="软件断点"><a href="#软件断点" class="headerlink" title="软件断点"></a>软件断点</h2><p><strong>实现方式</strong>：通过重写指令首个字节为0xcc，即”INT 3”指令，这个指令专门供调试器所使用，一旦触发操作系统产生异常接着讲控制权交给调试器。</p>
+<p>内核模式会限制软件断点的数量，用户模式不限制</p>
+<h2 id="硬件断点"><a href="#硬件断点" class="headerlink" title="硬件断点"></a>硬件断点</h2><p>x86支持硬件断点</p>
+<p><strong>实现方式：</strong>利用专门硬件寄存器。处理器执行每一条指令的时候，硬件都会检测指令的指针是否和断点相等，而不关心指令内容。</p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>所以，遇见修改自身代码的样本时，软件断点可能就被修改了，但是地址不会改变，所以硬件断点依然生效</li>
+<li>可以设置访问中断这种模式的断点，也就是说，不是只有执行到断点地址处才会中断，而是对该地址的读、写都可以中断下来</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li><p>只有四个硬件寄存器存储硬件断点</p>
+</li>
+<li><p>容易被运行的程序修改。CPU芯片虽然有8个调试寄存器，但是这个前四个DR0<del>DR3来储存断点地址，调试控制寄存器DR7保存DR0</del>DR3的值是否有效，以及他们表示读写或执行断点的信息，病毒可以修改这些寄存器来进行干扰。</p>
+<p>幸亏X86芯片组有防御上面干扰的能力，可以设置DR7的通用探测标志位，任何执行mov指令访问DR7寄存器的操作都会触发断点，让你可以查看DR7的改变情况，虽然只能监控mov指令</p>
+</li>
+</ul>
+<h2 id="条件断点"><a href="#条件断点" class="headerlink" title="条件断点"></a>条件断点</h2><p>首先它是软件断点，其次它需要条件才能触发。适合小段代码使用</p>
+<p><strong>缺点：</strong>如果在经常被访问的指令上下条件断点，会导致程序运行速度明显减缓，甚至于不能运行。</p>
+<h2 id="内存断点"><a href="#内存断点" class="headerlink" title="内存断点"></a>内存断点</h2><p><strong>内存访问断点：</strong>通过修改内存页属性，一旦访问或者读写到该内存也就会触发异常，调试器处理该异常，然后判断是否和断点地址相同，不同就放行</p>
+<p>OD支持在内存面板或者内存映射面板中对一部分内存下断点。只准设置一个断点，后面的会覆盖前面的。效率很低，因为是修改一个内存页的属性，断点位置很大。</p>
+<p><strong>内存硬件断点：</strong>就是硬件断点</p>
+<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>异常是调试器获取程序控制权的基本方式。</p>
+<p>但本质上，出了断点产生的异常外，还有其他开发过程中无意中留下的非法内存访问、除0操作异常，这些异常就是由于开发中不严谨的Bug引起的，调试器就是为了探测出这些异常，让那些不可控异常消除掉，或者可控起来。</p>
+<h3 id="首次和二次异常处理"><a href="#首次和二次异常处理" class="headerlink" title="首次和二次异常处理"></a>首次和二次异常处理</h3><p>调试器通常有两次机会来处理同一个异常。</p>
+<p><strong>背景</strong>：一个存在除0异常的被调试的程序</p>
+<p><strong>首次异常处理：</strong>调试器调试这个程序后，执行到除0操作处异常触发，调试器可以选择自己处理，或者转给被调试的应用程序处理。</p>
+<p><strong>第二次异常处理：</strong>上一步里，调试器选择将异常转给被调试的程序，这种情况下，如果程序没有注册异常处理函数，也就是处理不了这种异常，调试器就获得了第二次处理的机会，如果不处理程序就会崩溃。</p>
+<h3 id="常见异常"><a href="#常见异常" class="headerlink" title="常见异常"></a>常见异常</h3><ul>
+<li>INT 3断点：即上面介绍过的”INT 3”指令，这是一种”trap”类硬件异常，操作系统会保存异常的”下文”，在调试器处理完异常后，就会执行到”下文”也就是下一条指令中去</li>
+<li>单步调试：也就是OD的F8键，也是一种”trap”类硬件异常，主要有标志寄存器的陷阱标志(trap flag)来实现，标志寄存器置位后，处理器每执行一条指令都会触发异常。</li>
+<li>访问无权限访问的地址，会产生内存冲突memory-access violation</li>
+<li>在非特权模式下执行一些特权命令</li>
+</ul>
+<h2 id="分析shellcode"><a href="#分析shellcode" class="headerlink" title="分析shellcode"></a>分析shellcode</h2><p>将shellcode二进制复制到内存属性为Priv的00区域中去，然后设置EIP到shellcode处进行调试</p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>本片文章通过对Lab07_03.exe分析，学习OllyDbg来进行高级动态分析</p>
+<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>结合动态调试来分析样本</p>
+<h1 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h1><p>1.基础静态分析</p>
+<p>2.高级静态动态结合分析</p>
+<h1 id="实践过程"><a href="#实践过程" class="headerlink" title="实践过程"></a>实践过程</h1><h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><p>Lab09-01.exe</p>
+<h3 id="基础静态分析"><a href="#基础静态分析" class="headerlink" title="基础静态分析"></a>基础静态分析</h3><p>样本可能存在：</p>
+<ul>
+<li>创建服务</li>
+<li>文件操作</li>
+<li>socket网络通信</li>
+<li>注册表操作</li>
+<li>创建进程</li>
+</ul>
+<pre><code>导入函数：
+1.CreateServiceA
+2.CopyFileA
+WriteFile
+DeleteFileA
+3.115 (WSAStartup)
+19 (send)
+23 (socket)
+16 (recv)
+4.RegSetValueExA
+5.CreateProcessA
+
+字符串：
+SOFTWARE\Microsoft \XPS
+DOWNLOAD
+cmd.exe
+/c del 
+http://www.practicalmalwareanalysis.com
+ HTTP/1.0\r\n\r\n
+UPLOAD
+ &gt;&gt; NUL</code></pre><h3 id="高级动态静态结合分析"><a href="#高级动态静态结合分析" class="headerlink" title="高级动态静态结合分析"></a>高级动态静态结合分析</h3><p>根据是否传入命令行参数来决定样本的执行。如果不传参数，进入sub_401000函数，如果这个函数返回值为0就进入sub_402410函数，另外一种情况，如果返回值不为0，则直接跳到结尾，返回结果为0。下面进行第一步，分析sub_401000</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571131371574.png" alt="1571131371574"></p>
+<p>寻找注册表项”SOFTWARE\Microsoft \XPS”的键值”Configuration”，如果找到则返回1，接着跳出当前函数并且跳到函数结尾，返回0。</p>
+<p>如果找不到该注册表键值，则返回为0，进入sub_402410函数</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571132060984.png" alt="1571132060984"></p>
+<p>删除当前文件，这里也可以直接定位到ShellExecuteA的参数传入的地方，直接查看需要执行的命令内容</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571132808362.png" alt="1571132808362"></p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571133048818.png" alt="1571133048818"></p>
+<h4 id="修补patch"><a href="#修补patch" class="headerlink" title="修补patch"></a>修补patch</h4><p>所以分析导致里我们发现如果程序要正常执行需要给一个参数才可以，这里我们用另一个方法，直接修改内存中的汇编代码，有多种修改方法：</p>
+<p>1.我们空格跳转指令，将其改成参数数量和0进行比较，由于自身程序占一个参数数量，所以cmp结果不为0，修改Z标志位为0</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571134007134.png" alt="1571134007134"></p>
+<p>2.将条件跳转指令JNZ改成JZ，都是一字节指令不会影响整体指令。</p>
+<p>过掉第一个条件，继续向下分析。</p>
+<p>如果不传入参数并且存在注册表键值”SOFTWARE\Microsoft \XPS”\Configuration”的情况下，执行进sub_402360函数</p>
+<p>进入while循环，首先将注册表键值的数据存入四个本地变量，接着将其作为参数传入sub_401E60</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571217170581.png" alt="1571217170581"></p>
+<p>如果sub_401E60返回结果不为0就会跳转到结尾返回1，继续深入，分析sub_401E60，寻找满足条件</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571218711204.png" alt="1571218711204"></p>
+<p>读取域名到name变量、读取80对应16进制数0x50到hostshort变量，然后在sub_401D80函数中，由于是一些逻辑运算暂时跳过，接着根据配置来创建socket连接，这一步我们因为域名实效，将返回值后的跳转patch掉</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571219843372.png" alt="1571219843372"></p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571221373239.png" alt="1571221373239"></p>
+<p>构造http请求报文发送到指定域名，用来获取返回报文</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571222702986.png" alt="1571222702986"></p>
+<p>然后截取返回报文中下面途中两个字符串之间的数据存放到传入的参数v14中去</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571223793560.png" alt="1571223793560"></p>
+<p>接着分析返回数据：</p>
+<ul>
+<li>sleep：根据紧跟在后面的数值程序进行睡眠</li>
+</ul>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571224748179.png" alt="1571224748179"></p>
+<ul>
+<li>upload：文件上传：socket连接远程服务器接收数据，根据upload后面的文件名，创建并将数据写入文件内，接着修改文件时间跟kernel32.dll同步</li>
+</ul>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571225171930.png" alt="1571225171930"></p>
+<ul>
+<li>download：文件下载：根据紧跟在后面的文件名，读取特定文件并把数据发送回远程服务器</li>
+</ul>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571225365486.png" alt="1571225365486"></p>
+<ul>
+<li>CMD：命令执行：获取报文中的命令，执行完毕后将输出发送回远程服务器</li>
+</ul>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571225570026.png" alt="1571225570026"></p>
+<p>然后就是不断反复执行上面的交互操作，直到出错退出。到此我们关于不带命令的分析就结束了，是常见的后门操作，需要配合注册表键值”SOFTWARE\Microsoft \XPS”\Configuration”进行远程服务器的连接，根据返回报文进行操作。</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571225706884.png" alt="1571225706884"></p>
+<p>这里我们分析给命令行传参的情况：因为样本本身占一个参数，所以argv[arc-1]取的就是传入最后一个参数的地址，将其作为sub_402510的参数进行调用，并且如果返回结果为0就执行sub402410，上面分析过，删除自身并结束，所以我们需要分析sub402410函数，让其返回值不为0</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571134498285.png" alt="1571134498285"></p>
+<p>第一步if判断，如果最后一个命令行参数的长度不等于4就会跳转到结尾，返回0，这一步可以通过写两个参数，最后一个命令行参数随意些长度为4的字符，或者调试的时候patch绕过</p>
+<p>第二步：绕过第一步，首先判断参数首个字符是否为”a”，如果不是就会跳转到结束，所以需要绕过：4字节参数首个字符为a或者动态patch</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571200878352.png" alt="1571200878352"></p>
+<p>第三步：绕过第二步，接着需要满足命令行参数的第二个字符比第一个字符大一才可以避免跳出，绕过方式同上。判断第三个字符是否等于”c”，第四个字符是否比第三个字符大1，满足上面条件就返回1</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571208550481.png" alt="1571208550481"></p>
+<p>​    为了调试更接近真实样本运行，并且防止patch之后影响指令判断（movsx）我们填写真实条件来调试，上面总结的条件有：命令行参数&gt;1，最后一个命令行参数为”abcd”</p>
+<p>当第二个命令行参数为”-in”且命令行参数数量为3时，将文件名”Lab09-01”放入变量ServiceName里，接着执行进sub_402600函数</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571210485738.png" alt="1571210485738"></p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571211011571.png" alt="1571211011571"></p>
+<p>sub_402600函数：创建服务Lab09-01，将Lab09-01.exe复制到”C:\Windows\system32\Lab09-01.exe”作为服务的可执行文件路径并且修改该文件的修改日期为kernel32.dll的修改日期</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571212084572.png" alt="1571212084572"></p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571213128738.png" alt="1571213128738"></p>
+<p>接着将一串带有域名的字符写进注册表”SOFTWARE\Microsoft \XPS”</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571213711579.png" alt="1571213711579"></p>
+<p>上面这些是第二个命令行参数为”-in”且命令行参数数量为3时发生的行为，还有另一种情况，当命令行参数为4的时候会将第三个命令行参数作为服务名来进行上面的操作</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571214052546.png" alt="1571214052546"></p>
+<p>当第二个命令行参数不是”-in”,而是”-re”的时候，删除服务Lab09-01，删除对应二进制可执行文件”C:\Windows\system32\Lab09-01.exe”，并且将注册表清空</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571215095130.png" alt="1571215095130"></p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571215119810.png" alt="1571215119810"></p>
+<p>当第二个参数是”-c”时，加上可执行文件自己的第一个参数，总共需要7个参数才不会删除自己。再除去第二个参数”-c”，最后一个参数”abcd”，第3~6的命令行参数作为参数写入注册表”SOFTWARE\Microsoft \XPS”\Configuration”</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571216490697.png" alt="1571216490697"></p>
+<p>当第二个参数是”-cc”时，首先需要满足总共3个命令行参数的条件，接着需要将注册表键值”SOFTWARE\Microsoft \XPS”\Configuration”中的数据提取到4个本地变量中</p>
+<p>然后从注册表获取的数据和一串占位符传入函数sub_402E7E，一般不是打印输出就是字符串拼接，我们在调试界面上单步一下查看输出界面，从下面图中可以看出这是一个打印函数</p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571217386136.png" alt="1571217386136"></p>
+<p><img src="/2019/10/14/windows样本高级动态分析/1571217509986.png" alt="1571217509986"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>不带参数：</p>
+<ol>
+<li>“SOFTWARE\Microsoft \XPS”\Configuration”键值对应配置信息，获取远程服务器的地址，构造HTTP请求报文，发送到远程服务器用来获取相应报文</li>
+<li>解析相应报文，执行对应操作<ul>
+<li>sleep睡眠</li>
+<li>upload上传文件到本地</li>
+<li>download读取本地文件并发送到远程服务器</li>
+<li>CMD执行指定命令并返回结果信息</li>
+<li>不做任何操作</li>
+</ul>
+</li>
+</ol>
+<p>带参数的操作：</p>
+<table>
+<thead>
+<tr>
+<th>命令行参数</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-in abcd</td>
+<td>创建服务Lab09-01长期驻留，创建注册表存储配置</td>
+</tr>
+<tr>
+<td>-in <servicename> abcd</servicename></td>
+<td>创建服务<servicename>长期驻留，创建注册表存储配置</servicename></td>
+</tr>
+<tr>
+<td>-re abcd</td>
+<td>删除服务Lab09-01，删除文件”C:\Windows\system32\Lab09-01.exe”，将注册表键值置0</td>
+</tr>
+<tr>
+<td>-re <servicename> abcd</servicename></td>
+<td>删除服务<servicename>，删除文件”C:\Windows\system32\Lab09-01.exe”，将注册表键值置0</servicename></td>
+</tr>
+<tr>
+<td>-c</td>
+<td>编写注册表键值”SOFTWARE\Microsoft \XPS”\Configuration”</td>
+</tr>
+<tr>
+<td>-cc</td>
+<td>打印注册表键值”SOFTWARE\Microsoft \XPS”\Configuration”</td>
+</tr>
+</tbody></table>
+<h1 id="补充知识"><a href="#补充知识" class="headerlink" title="补充知识"></a>补充知识</h1><h2 id="汇编指令"><a href="#汇编指令" class="headerlink" title="汇编指令"></a>汇编指令</h2><ul>
+<li>repne：不相等的时候重复。</li>
+<li>repe：相等的时候重复</li>
+<li>scasb：一直重复搜索到EDI字符串末尾的00，所以repne scasb就是循环字符串edi，获取字符串长度</li>
+<li>not ecx：得到搜索次数，也就是字符串的完整长度</li>
+<li>dec ecx：-1得到字符串不包含末尾0的长度</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows病毒分析/" rel="tag"># windows病毒分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/13/DIY电脑配置/" rel="next" title="DIY电脑配置">
+                <i class="fa fa-chevron-left"></i> DIY电脑配置
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/17/windows样本高级动态分析二/" rel="prev" title="windows样本高级动态分析二">
+                windows样本高级动态分析二 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前置知识"><span class="nav-number">1.</span> <span class="nav-text">前置知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#用户模式调试和内核模式调试区别："><span class="nav-number">1.1.</span> <span class="nav-text">用户模式调试和内核模式调试区别：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#软件断点"><span class="nav-number">1.2.</span> <span class="nav-text">软件断点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#硬件断点"><span class="nav-number">1.3.</span> <span class="nav-text">硬件断点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#条件断点"><span class="nav-number">1.4.</span> <span class="nav-text">条件断点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存断点"><span class="nav-number">1.5.</span> <span class="nav-text">内存断点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常"><span class="nav-number">1.6.</span> <span class="nav-text">异常</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#首次和二次异常处理"><span class="nav-number">1.6.1.</span> <span class="nav-text">首次和二次异常处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见异常"><span class="nav-number">1.6.2.</span> <span class="nav-text">常见异常</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析shellcode"><span class="nav-number">1.7.</span> <span class="nav-text">分析shellcode</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">2.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#目标"><span class="nav-number">3.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#流程"><span class="nav-number">4.</span> <span class="nav-text">流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践过程"><span class="nav-number">5.</span> <span class="nav-text">实践过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实例"><span class="nav-number">5.1.</span> <span class="nav-text">实例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础静态分析"><span class="nav-number">5.1.1.</span> <span class="nav-text">基础静态分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级动态静态结合分析"><span class="nav-number">5.1.2.</span> <span class="nav-text">高级动态静态结合分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#修补patch"><span class="nav-number">5.1.2.1.</span> <span class="nav-text">修补patch</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.1.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#补充知识"><span class="nav-number">6.</span> <span class="nav-text">补充知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#汇编指令"><span class="nav-number">6.1.</span> <span class="nav-text">汇编指令</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

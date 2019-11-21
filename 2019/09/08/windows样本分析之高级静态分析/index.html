@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windows病毒分析,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="目标1.鉴定黑白 2.详细静态分析，根据基础静态分析判定的结果，来详细分析样本的行为 原理通过IDA阅读反汇编和伪代码，分析样本行为 实践过程Lab05-01.dll 基础静态分析VT检测 黑样本  58/68检出率，判定为黑样本。  后门  根据VT上众多扫描引擎的病毒名，判断为后门样本  鉴定黑白后，进行对样本恶意行为进行进一步分析 信息收集   信息类型 内容    时间戳 Mon Jun">
+<meta name="keywords" content="windows病毒分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="windows样本分析之高级静态分析">
+<meta property="og:url" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="目标1.鉴定黑白 2.详细静态分析，根据基础静态分析判定的结果，来详细分析样本的行为 原理通过IDA阅读反汇编和伪代码，分析样本行为 实践过程Lab05-01.dll 基础静态分析VT检测 黑样本  58/68检出率，判定为黑样本。  后门  根据VT上众多扫描引擎的病毒名，判断为后门样本  鉴定黑白后，进行对样本恶意行为进行进一步分析 信息收集   信息类型 内容    时间戳 Mon Jun">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/1567935334458.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/1569061539297.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/1569063452557.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/1569063583364.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/1569063786988.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/1569063832785.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/1569063945987.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/1569064212775.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/1569064134683.png">
+<meta property="og:updated_time" content="2019-10-17T09:58:30.415Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="windows样本分析之高级静态分析">
+<meta name="twitter:description" content="目标1.鉴定黑白 2.详细静态分析，根据基础静态分析判定的结果，来详细分析样本的行为 原理通过IDA阅读反汇编和伪代码，分析样本行为 实践过程Lab05-01.dll 基础静态分析VT检测 黑样本  58/68检出率，判定为黑样本。  后门  根据VT上众多扫描引擎的病毒名，判断为后门样本  鉴定黑白后，进行对样本恶意行为进行进一步分析 信息收集   信息类型 内容    时间戳 Mon Jun">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/1567935334458.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/">
+
+
+
+
+
+  <title>windows样本分析之高级静态分析 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/08/windows样本分析之高级静态分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">windows样本分析之高级静态分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-08T17:28:58+08:00">
+                2019-09-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>1.鉴定黑白</p>
+<p>2.详细静态分析，根据基础静态分析判定的结果，来详细分析样本的行为</p>
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>通过IDA阅读反汇编和伪代码，分析样本行为</p>
+<h1 id="实践过程"><a href="#实践过程" class="headerlink" title="实践过程"></a>实践过程</h1><p>Lab05-01.dll</p>
+<h2 id="基础静态分析"><a href="#基础静态分析" class="headerlink" title="基础静态分析"></a>基础静态分析</h2><h3 id="VT检测"><a href="#VT检测" class="headerlink" title="VT检测"></a>VT检测</h3><ul>
+<li>黑样本</li>
+</ul>
+<p>58/68检出率，判定为黑样本。</p>
+<ul>
+<li>后门</li>
+</ul>
+<p>根据VT上众多扫描引擎的病毒名，判断为后门样本</p>
+<p><img src="/2019/09/08/windows样本分析之高级静态分析/1567935334458.png" alt="1567935334458"></p>
+<p>鉴定黑白后，进行对样本恶意行为进行进一步分析</p>
+<h3 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h3><table>
+<thead>
+<tr>
+<th align="left">信息类型</th>
+<th align="left">内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">时间戳</td>
+<td align="left">Mon Jun 09 20:49:29 2008</td>
+</tr>
+<tr>
+<td align="left">文件类型</td>
+<td align="left">32位GUI型DLL文件</td>
+</tr>
+<tr>
+<td align="left">壳特征</td>
+<td align="left">未加壳</td>
+</tr>
+</tbody></table>
+<p>从收集到的信息上看，是一款比较老的DLL恶意文件</p>
+<h3 id="简单行为分析"><a href="#简单行为分析" class="headerlink" title="简单行为分析"></a>简单行为分析</h3><ol>
+<li><p>监控登陆窗口，记录登陆用户名密码</p>
+<p>根据导入表函数：<code>OpenDesktopA、SetThreadDesktop等</code>和字符串表中的<code>Winlogon</code>，在线搜索发现相关API和字符可以实现这样的功能</p>
+</li>
+<li><p>枚举盘符</p>
+<p><code>GetLogicalDrives、GetDriveTypeA</code>，根据这些API可以知道</p>
+</li>
+<li><p>获取计算机信息</p>
+<p><code>GetVersionExA、GetComputerNameA</code></p>
+</li>
+<li><p>创建服务，修改服务等操作</p>
+<p><code>CreateServiceA、RegisterServiceCtrlHandlerA、StartServiceA等</code></p>
+</li>
+<li><p>文件操作，遍历、复制、删除等</p>
+<p><code>WriteFile、CopyFileA、MoveFileExA、DeleteFileA、FindNextFileA FindFirstFileA</code></p>
+</li>
+<li><p>Socket连接</p>
+<p><code>recv、send、connect、ntohs、htons</code></p>
+</li>
+<li><p>DLL注入</p>
+<p><code>CreateToolhelp32Snapshot、Process32First、Process32Next、VirtualAllocEx、WriteProcessMemory、CreateRemoteThread</code></p>
+</li>
+<li><p>命令执行</p>
+<p><code>WinExec、Sleep</code></p>
+</li>
+<li><p>注册表</p>
+<ul>
+<li>设置IE浏览器路径<code>SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\IEXPLORE.EXE</code></li>
+<li>服务配置<code>SYSTEM\CurrentControlSet\Services\</code>等</li>
+<li>获取设备信息<code>HARDWARE\DEVICEMAP\VIDEO</code></li>
+</ul>
+</li>
+<li><p>反虚拟机</p>
+<p><code>Found Virtual Machine,Install Cancel.</code></p>
+</li>
+<li><p>HTTP、FTP</p>
+<pre><code>anonymous
+FTP://
+ftp://
+Content-Length:
+HTTP/1.1 5
+HTTP/1.1 3
+HTTP/1.1 4
+Expires: 0
+Cache-Control: no-cache, must-revalidate
+Pragma: no-cache
+Connection: Keep-Alive
+User-Agent: Mozilla/4.0 (compatible; MSIE 6.00; Windows NT 5.1)
+Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, application/x-shockwave-flash, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*
+Host: 
+ HTTP/1.1
+GET 
+HTTP://
+http://</code></pre></li>
+<li><p>命令参数</p>
+<pre><code>-warn
+-erro
+-stop
+-shutdown
+-reboot
+attrib -a -r -s -h &quot;%s&quot;
+rundll32.exe %s,StartEXS %s:%s</code></pre></li>
+<li><p>衍生文件</p>
+<p><code>.\vmselfdel.bat</code></p>
+</li>
+</ol>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>简单从导入表和字符串表中粗略概括以上恶意行为，下面用IDA对照上面的信息，详细分析</p>
+<h2 id="高级静态分析"><a href="#高级静态分析" class="headerlink" title="高级静态分析"></a>高级静态分析</h2><p>这里我们大概看一下，简单从导入表和导出表来看他的行为</p>
+<ol>
+<li>入口位置：DllMain</li>
+</ol>
+<p>IDA直接识别出入口位置，并用其最重要的功能之一的F5大法来查看伪代码。如果使用rundll32.exe启动这个DLL文件，就会从这里开始执行。</p>
+<p>很明显从下面API可以看出这里有创建多条线程的操作</p>
+<p><img src="/2019/09/08/windows样本分析之高级静态分析/1569061539297.png" alt="1569061539297"></p>
+<p>2.导入表</p>
+<p>直接定位关键函数。</p>
+<p>跟踪关键函数 RegisterServiceCtrlHandlerA，接着用交叉引用和F5大法就可以跟到打开服务的行为</p>
+<p><img src="/2019/09/08/windows样本分析之高级静态分析/1569063452557.png" alt="1569063452557"></p>
+<p><img src="/2019/09/08/windows样本分析之高级静态分析/1569063583364.png" alt="1569063583364"></p>
+<p>3.字符串表</p>
+<p>根据可以的网络访问字符串，再结合跟进去后看见的socket连接行为，很明显是后门访问获取特定指令来进行HTTP请求</p>
+<p><img src="/2019/09/08/windows样本分析之高级静态分析/1569063786988.png" alt="1569063786988"></p>
+<p><img src="/2019/09/08/windows样本分析之高级静态分析/1569063832785.png" alt="1569063832785"></p>
+<p>4.导出表</p>
+<p>根据符号信息可以初步判断是一些安装卸载服务和其他一些行为的操作。</p>
+<p><img src="/2019/09/08/windows样本分析之高级静态分析/1569063945987.png" alt="1569063945987"></p>
+<p>跟进InstallSA导出函数发现存在反虚拟机行为。</p>
+<p><img src="/2019/09/08/windows样本分析之高级静态分析/1569064212775.png" alt="1569064212775"></p>
+<p><img src="/2019/09/08/windows样本分析之高级静态分析/1569064134683.png" alt="1569064134683"></p>
+<h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p>这个简单分析初步探索一下静态逆向过程。很明显这个过程如果对Windows API不熟的话需要不断的查询,当然我们的关注点应该更专注于恶意行为会用到的API。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows病毒分析/" rel="tag"># windows病毒分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/08/ptrace注入/" rel="next" title="ptrace注入">
+                <i class="fa fa-chevron-left"></i> ptrace注入
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/18/CTF赛题-PC逆向之异常处理/" rel="prev" title="CTF赛题-PC逆向之异常处理">
+                CTF赛题-PC逆向之异常处理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#目标"><span class="nav-number">1.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原理"><span class="nav-number">2.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践过程"><span class="nav-number">3.</span> <span class="nav-text">实践过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础静态分析"><span class="nav-number">3.1.</span> <span class="nav-text">基础静态分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VT检测"><span class="nav-number">3.1.1.</span> <span class="nav-text">VT检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#信息收集"><span class="nav-number">3.1.2.</span> <span class="nav-text">信息收集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单行为分析"><span class="nav-number">3.1.3.</span> <span class="nav-text">简单行为分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">3.1.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#高级静态分析"><span class="nav-number">3.2.</span> <span class="nav-text">高级静态分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

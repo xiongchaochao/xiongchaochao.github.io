@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android Hook,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="引言本片文章主要学习Android平台的Inline-Hook来配合ptrace注入实现简单的游戏破解，了解游戏破解相关的安全技术。 概述下面通过一张经典的inline hook流程图，做个大致介绍。 主要通过修改一条汇编指令，让指令流程跳转到我们设计好的桩函数处，执行完我们的桩函数后紧接着执行我们修改的哪条汇编指令，紧接着经过一个跳转指令返回原来的指令流程里继续程序的正常执行。  内联算法 先构">
+<meta name="keywords" content="Android Hook">
+<meta property="og:type" content="article">
+<meta property="og:title" content="inline-hook">
+<meta property="og:url" content="http://yoursite.com/2019/09/08/inline_Hook/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="引言本片文章主要学习Android平台的Inline-Hook来配合ptrace注入实现简单的游戏破解，了解游戏破解相关的安全技术。 概述下面通过一张经典的inline hook流程图，做个大致介绍。 主要通过修改一条汇编指令，让指令流程跳转到我们设计好的桩函数处，执行完我们的桩函数后紧接着执行我们修改的哪条汇编指令，紧接着经过一个跳转指令返回原来的指令流程里继续程序的正常执行。  内联算法 先构">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/inline_Hook/165921tz43a3sm4vi2s4s4.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/inline_Hook/1560307847662.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/inline_Hook/1560307804978.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/inline_Hook/1560308215956.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/inline_Hook/1560308396552.png">
+<meta property="og:updated_time" content="2019-10-28T11:13:06.729Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="inline-hook">
+<meta name="twitter:description" content="引言本片文章主要学习Android平台的Inline-Hook来配合ptrace注入实现简单的游戏破解，了解游戏破解相关的安全技术。 概述下面通过一张经典的inline hook流程图，做个大致介绍。 主要通过修改一条汇编指令，让指令流程跳转到我们设计好的桩函数处，执行完我们的桩函数后紧接着执行我们修改的哪条汇编指令，紧接着经过一个跳转指令返回原来的指令流程里继续程序的正常执行。  内联算法 先构">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/08/inline_Hook/165921tz43a3sm4vi2s4s4.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/08/inline_Hook/">
+
+
+
+
+
+  <title>inline-hook | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/08/inline_Hook/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">inline-hook</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-08T17:28:58+08:00">
+                2019-09-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>本片文章主要学习Android平台的Inline-Hook来配合ptrace注入实现简单的游戏破解，了解游戏破解相关的安全技术。</p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>下面通过一张经典的inline hook流程图，做个大致介绍。</p>
+<p>主要通过修改一条汇编指令，让指令流程跳转到我们设计好的桩函数处，执行完我们的桩函数后紧接着执行我们修改的哪条汇编指令，紧接着经过一个跳转指令返回原来的指令流程里继续程序的正常执行。</p>
+<p><img src="/2019/09/08/inline_Hook/165921tz43a3sm4vi2s4s4.png" alt></p>
+<h1 id="内联算法"><a href="#内联算法" class="headerlink" title="内联算法"></a>内联算法</h1><ol>
+<li>先构造我们的桩函数，主要进行以下操作：<ul>
+<li>寄存器的备份，为第三步继续执行原指令做准备</li>
+<li>跳转到用户自定义函数的指令</li>
+<li>寄存器还原操作</li>
+<li>跳转到构造好的原指令函数</li>
+</ul>
+</li>
+<li>构造原指令函数，这个原指令函数主要是执行将要被修改的汇编指令，并跳转到程序正常的执行流程中</li>
+<li>指令覆盖操作。使用跳转指令覆盖原指令</li>
+</ol>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p><strong>Ihook.h</strong>：头文件，声明了hook过程中用到的一些功能函数和宏定义</p>
+<pre><code class="c++">#include &lt;stdio.h&gt;
+#include &lt;Android/log.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/mman.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;sys/ptrace.h&gt;
+#include &lt;stdbool.h&gt;
+
+#ifndef BYTE
+#define BYTE unsigned char
+#endif
+
+#define OPCODEMAXLEN 8      //inline hook所需要的opcodes最大长度
+
+#define LOG_TAG &quot;GSLab&quot;
+#define LOGI(fmt, args...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, fmt, ##args);
+
+/** shellcode里用到的参数、变量*/
+extern unsigned long _shellcode_start_s;
+extern unsigned long _shellcode_end_s;
+extern unsigned long _hookstub_function_addr_s; //根函数地址
+extern unsigned long _old_function_addr_s;  //原指令地址
+
+//hook点信息
+typedef struct tagINLINEHOOKINFO{
+    void *pHookAddr;                //hook的地址
+    void *pStubShellCodeAddr;            //跳过去的shellcode stub的地址
+    void (*onCallBack)(struct pt_regs *);  
+    //回调函数，跳转过去的函数地址
+    void ** ppOldFuncAddr;             //shellcode 中存放old function的地址
+    BYTE szbyBackupOpcodes[OPCODEMAXLEN];    //原来的opcodes
+} INLINE_HOOK_INFO;
+
+//更高内存页属性
+bool ChangePageProperty(void *pAddress, size_t size);
+
+//获取模块基址
+extern void * GetModuleBaseAddr(pid_t pid, char* pszModuleName);
+
+//初始化ARM指令集的hook信息结构体
+bool InitArmHookInfo(INLINE_HOOK_INFO* pstInlineHook);
+
+//构建桩函数
+bool BuildStub(INLINE_HOOK_INFO* pstInlineHook);
+
+//构建跳转代码
+bool BuildArmJumpCode(void *pCurAddress , void *pJumpAddress);
+
+//构建原指令的函数
+bool BuildOldFunction(INLINE_HOOK_INFO* pstInlineHook);
+
+//重写hook点的原指令，使其跳转到桩函数处
+bool RebuildHookTarget(INLINE_HOOK_INFO* pstInlineHook);
+
+//HOOK的总流程
+extern bool HookArm(INLINE_HOOK_INFO* pstInlineHook);</code></pre>
+<p><strong>Ihook.c</strong>:HookArm函数，主要的Hook模块。我们先将整个hook流程串起来，再去补全4个功能函数的代码</p>
+<pre><code class="c">#include &quot;Ihook.h&quot;
+
+
+bool HookArm(INLINE_HOOK_INFO* pstInlineHook)
+{
+    //hook结果
+    bool bRet = false;
+
+    while(1)
+    {
+        //判断是否传入Hook点信息的结构体
+        if(pstInlineHook == NULL)
+        {
+            LOGI(&quot;pstInlineHook is null.&quot;);
+            break
+        }
+
+        /* 初始化hook点的信息，如原指令地址、将要执行的用户自定义函数*/
+        if(InitArmHookInfo(pstInlineHook) == false)
+        {
+            LOGI(&quot;Init Arm HookInfo fail.&quot;);
+            break;
+        }
+
+        /* 1. 构造桩函数*/
+        if(BuildStub(pstInlineHook) == false)
+        {
+            LOGI(&quot;BuildStub fail.&quot;);
+            break;
+        }
+
+        /* 2. 构造原指令函数，执行被覆盖指令并跳转回原始指令流程*/
+        if(BuildOldFunction(pstInlineHook) == false)
+        {
+            LOGI(&quot;BuildOldFunction fail.&quot;);
+            break;
+        }
+
+        /* 3. 改写原指令为跳转指令，跳转到桩函数处*/
+        if(RebuildHookTarget(pstInlineHook) == false)
+        {
+            LOGI(&quot;RebuildHookAddress fail.&quot;);
+            break;
+        }
+
+        bRet = true;
+        break;
+    }
+
+    return bRet;
+}</code></pre>
+<p><strong>hook.c</strong>:InitArmHookInfo函数，保存原指令的opcode</p>
+<pre><code class="c">/**
+ *  初始化hook点信息，保存原指令的opcode
+ *
+ *  @param  pstInlineHook hook点相关信息的结构体
+ *  @return 初始化是否成功
+ */
+bool InitArmHookInfo(INLINE_HOOK_INFO* pstInlineHook)
+{
+    bool bRet = false;
+
+    if(pstInlineHook == NULL)
+    {
+        LOGI(&quot;pstInlineHook is null&quot;);
+        return bRet;
+    }
+
+    memcpy(pstInlineHook-&gt;szbyBackupOpcodes, pstInlineHook-&gt;pHookAddr, 8);
+    return bRet;
+}</code></pre>
+<p><strong>hook.c</strong>:BuildStub函数，第一步构造桩函数，这里我们用shellcode来构造。</p>
+<ul>
+<li>我们申请一块内存并且将内存属性改成可执行，将shellcode拷进去，shellcode的起始地址就是桩函数的地址，将这个地址存进hook点结构体中</li>
+<li>还有将shellcode中存有原指令函数地址的变量留空，并且将该变量的内存地址存放进hook点结构体中，以便在构造原指令函数的时候，用原指令函数的地址将shellcode中的这个变量填充</li>
+<li>从hook点结构体中获取用户自定义函数的地址给shellcode中的_hookstub_function_addr_s变量赋值</li>
+</ul>
+<pre><code class="c">/**
+ *  修改页属性，改成可读可写可执行
+ *  @param   pAddress   需要修改属性起始地址
+ *  @param   size       需要修改页属性的长度，byte为单位
+ *  @return  bool       修改是否成功
+ */
+bool ChangePageProperty(void *pAddress, size_t size)
+{
+    bool bRet = false;
+
+    if(pAddress == NULL)
+    {
+        LOGI(&quot;change page property error.&quot;);
+        return bRet;
+    }
+    //计算包含的页数、对齐起始地址
+    unsigned long ulPageSize = sysconf(_SC_PAGESIZE);
+    int iProtect = PROT_READ | PROT_WRITE | PROT_EXEC;
+    //页对齐，把小于4096的位数(前12位)都置0，只取大于4096的位数且其值必然是4096的整数倍
+    //并且这个值必然小于等于参数pAddress
+    unsigned long ulNewPageStartAddress = (unsigned long)(pAddress) &amp; ~(ulPageSize - 1);
+
+    long lPageCount = (size / ulPageSize) + 1;
+    int iRet = mprotect((const void *)(ulNewPageStartAddress), lPageCount*ulPageSize , iProtect);
+    if(iRet == -1)
+    {
+        LOGI(&quot;mprotect error:%s&quot;, strerror(errno));
+        return bRet;
+    }
+    return true;
+}
+
+/**
+ *  1. 构造桩函数。这里的桩函数我们主要在shellcode中实现
+ *      * 保存寄存器的值
+ *      * 跳转到用户自定义函数callback
+ *      * 寄存器还原操作
+ *      * 跳转到构造好的原指令函数中
+ *
+ *  @param  pstInlineHook hook点相关信息的结构体
+ *  @return inlinehook桩是否构造成功
+ */
+bool BuildStub(INLINE_HOOK_INFO* pstInlineHook)
+{
+    bool bRet = false;
+
+    while(1)
+    {
+        if(pstInlineHook == NULL)
+        {
+            LOGI(&quot;pstInlineHook is null&quot;);
+            break;
+        }
+
+        //导入数据段中shellcdoe的开始、结束地址，为用户自定义函数callback和将要构造的原指令函数保留的地址
+        void *p_shellcode_start_s = &amp;_shellcode_start_s;
+        void *p_shellcode_end_s = &amp;_shellcode_end_s;
+        void *p_hookstub_function_addr_s = &amp;_hookstub_function_addr_s;
+        void *p_old_function_addr_s = &amp;_old_function_addr_s;
+
+        //malloc一块内存，将shellcode拷贝进去并修改这块内存为可执行权限
+        //并且更新hook点结构体的数据，让结构体中保存有桩函数(shellcode)的地址和一个变量的地址，这个变量存放着原指令函数的地址，并且这个变量在构造原指令函数的时候才会存进真实的地址
+        size_t sShellCodeLength = p_shellcode_end_s - p_shellcode_start_s;
+        void *pNewShellCode = malloc(sShellCodeLength);
+        if(pNewShellCode == NULL)
+        {
+            LOGI(&quot;shell code malloc fail.&quot;);
+            break;
+        }
+        memcpy(pNewShellCode, p_shellcode_start_s, sShellCodeLength);
+        if(ChangePageProperty(pNewShellCode, sShellCodeLength) == false)
+        {
+            LOGI(&quot;change shell code page property fail.&quot;);
+            break;
+        }
+
+        //从参数中获取用户自定义函数callback的地址，并填充到shellcode中
+        void **ppHookStubFunctionAddr = pNewShellCode + (p_hookstub_function_addr_s - p_shellcode_start_s);
+        *ppHookStubFunctionAddr = pstInlineHook-&gt;onCallBack;
+        //桩函数(shellcode)的地址
+        pstInlineHook-&gt;pStubShellCodeAddr = pNewShellCode;
+        //变量地址，存放原指令函数地址的变量
+        pstInlineHook-&gt;ppOldFuncAddr  = pNewShellCode + (p_old_function_addr_s - p_shellcode_start_s);
+        bRet = true;
+        break;
+    }
+
+    return bRet;
+}</code></pre>
+<p><strong>ihookstub.s</strong>:shellcode：具体做到以下桩函数的功能</p>
+<ul>
+<li>保存寄存器值</li>
+<li>跳转执行用户自定义的函数callback</li>
+<li>还原寄存器的值</li>
+<li>跳转执行原指令函数</li>
+</ul>
+<pre><code class="assembly">.global _shellcode_start_s
+.global _shellcode_end_s
+.global _hookstub_function_addr_s
+.global _old_function_addr_s
+
+.data
+
+_shellcode_start_s:
+    push    {r0, r1, r2, r3}                ;取push完r0-r4的sp，后面在这个基础上进行更改，所以我们需要保存的r13的值就是sp+0x10
+    mrs     r0, cpsr                        ;将CPSR寄存器内容读出到R0
+    str     r0, [sp, #0xC]                    ;将cpsr保存到sp+#0xC的位置
+    str     r14, [sp, #8]                   ;将r14(lr)保存到sp+8
+    add     r14, sp, #0x10                    ;sp+0x10的值存放进r14
+    str     r14, [sp, #4]                    ;保存寄存器r13的值到sp+4的位置
+    pop     {r0}                               ;sp+4
+    push    {r0-r12}                           ;保存寄存器的值。sp+4-0x34=sp-0x30，将r0-r12压栈
+    mov     r0, sp                            ;将栈顶位置放入r0，作为参数传入_hookstub_function_addr_s函数内
+    ldr     r3, _hookstub_function_addr_s
+    blx     r3                                ;调用用户自定义函数callback
+    ldr     r0, [sp, #0x3C]                    ;sp-0x30+0x3c=sp+0xc,刚好是之前保存cpsr的栈地址
+    msr     cpsr, r0                        ;恢复cpsr
+    ldmfd   sp!, {r0-r12}                   ;恢复r0-r12的寄存器的值，sp-0x30+0x34=sp+4
+    ldr     r14, [sp, #4]                    ;恢复r14的值。sp+4+4=sp+8刚好是保存了r14寄存器的值
+    ldr     sp, [r13]                        ;恢复寄存器r13的值(r13=sp+4)刚好是之前保存的r13的值
+    ldr     pc, _old_function_addr_s        ;跳转回即将构造的原指令函数处
+
+_hookstub_function_addr_s:
+.word 0xffffffff
+
+_old_function_addr_s:
+.word 0xffffffff
+
+_shellcode_end_s:
+
+.end</code></pre>
+<p><strong>hook.c</strong>:BuildOldFunction第二步主要构造原指令函数，用到了一个构造跳转指令的功能</p>
+<pre><code class="c">/**
+ *  (ARM)修改指定位置的指令为跳转到另一个指定位置的跳转指令。
+ *  @param  pCurAddress      当前地址，要构造跳转指令的位置
+ *  @param  pJumpAddress     目的地址，要从当前位置跳过去的地址
+ *  @return                  跳转指令是否构造成功
+ */
+bool BuildArmJumpCode(void *pCurAddress , void *pJumpAddress)
+{
+    bool bRet = false;
+
+    while(1)
+    {
+        if(pCurAddress == NULL || pJumpAddress == NULL)
+        {
+            LOGI(&quot;address null.&quot;);
+            break
+        }
+
+        //LDR PC, [PC, #-4]的机器码是0xE51FF004
+        BYTE szLdrPCOpcodes[8] = {0x04, 0xF0, 0x1F, 0xE5};
+        //LDR PC, [PC, #-4]指令执行时，PC的值刚好是PC+8的位置，也就是PC-4=pc+8-4=pc+4的值就是下一条指令的值
+        //我们用地址代替指令值，实现修改PC寄存器执行到指定地址的功能
+        memcpy(szLdrPCOpcodes + 4, &amp;pJumpAddress, 4);
+        //修改指定位置的指令
+        memcpy(pCurAddress, szLdrPCOpcodes, 8);
+        cacheflush(*((uint32_t*)pCurAddress), 8, 0);
+
+        bRet = true;
+        break;
+    }
+
+    return bRet;
+}
+
+/**
+ *  2.构造原指令函数。
+ *      * 执行原指令
+ *      * 跳转到原始指令流程中，即原指令的下一条指令处
+ *  出了上面两个功能我们还需要将shellcode中的原指令函数地址进行填充，承接上面的流程
+ *
+ *  @param  pstInlineHook hook点相关信息的结构体
+ *  @return 原指令函数是否构造成功
+ */
+bool BuildOldFunction(INLINE_HOOK_INFO* pstInlineHook)
+{
+    bool bRet = false;
+
+    while(1)
+    {
+        if(pstInlineHook == NULL)
+        {
+            LOGI(&quot;pstInlineHook is null&quot;);
+            break;
+        }
+
+        //8字节原指令，8字节原指令的下一条指令
+        void * pNewEntryForOldFunction = malloc(16);
+        if(pNewEntryForOldFunction == NULL)
+        {
+            LOGI(&quot;new entry for old function malloc fail.&quot;);
+            break;
+        }
+
+        if(ChangePageProperty(pNewEntryForOldFunction, 16) == false)
+        {
+            LOGI(&quot;change new entry page property fail.&quot;);
+            break;    
+        }
+
+        //拷贝原指令到内存块中
+        memcpy(pNewEntryForOldFunction, pstInlineHook-&gt;szbyBackupOpcodes, 8);
+        //拷贝跳转指令到内存块中
+        if(BuildArmJumpCode(pNewEntryForOldFunction + 8, pstInlineHook-&gt;pHookAddr + 8) == false)
+        {
+            LOGI(&quot;build jump opcodes for new entry fail.&quot;);
+            break;
+        }
+
+        //填充shellcode里stub的回调地址
+        *(pstInlineHook-&gt;ppOldFuncAddr) = pNewEntryForOldFunction;
+
+        bRet = true;
+        break;
+    }
+
+    return bRet;
+}</code></pre>
+<p><strong>hook.c</strong>:RebuildHookTarget函数。最后一步，覆盖原指令(8字节长度，2条指令)，使其跳转到我们构造好的桩函数(shellcode)中去</p>
+<pre><code class="c">/**
+ * 3. 覆盖HOOK点的指令，跳转到桩函数的位置
+ * @param  pstInlineHook inlinehook信息
+ * @return 原地跳转指令是否构造成功
+ */
+bool RebuildHookTarget(INLINE_HOOK_INFO* pstInlineHook)
+{
+    bool bRet = false;
+
+    while(1)
+    {
+        if(pstInlineHook == NULL)
+        {
+            LOGI(&quot;pstInlineHook is null&quot;);
+            break;
+        }
+
+        //修改原位置的页属性，保证可写
+        if(ChangePageProperty(pstInlineHook-&gt;pHookAddr, 8) == false)
+        {
+            LOGI(&quot;change page property error.&quot;);
+            break;
+        }
+
+        //覆盖原指令为跳转指令
+        if(BuildArmJumpCode(pstInlineHook-&gt;pHookAddr, pstInlineHook-&gt;pStubShellCodeAddr) == false)
+        {
+            LOGI(&quot;build jump opcodes for new entry fail.&quot;);
+            break;
+        }
+
+        bRet = true;
+        break;
+    }
+
+    return bRet;
+}</code></pre>
+<h1 id="应用实例"><a href="#应用实例" class="headerlink" title="应用实例"></a>应用实例</h1><p>这里我们利用一个测试App，他的Native层写了一个这样的功能，如果我们不对其进行修改，他将5分钟后才会返回一个”Enough. You Win!”，现在我们的目的就是利用内联hook修改这个uiTimeCounter属性的值使其立刻输出”Enough. You Win!”</p>
+<pre><code class="cpp">static unsigned int uiTimeCounter = 0x1;
+
+//该函数，根据uiTimeCounter全局变量，返回两种结果字符串
+//大于30则返回成功提示，否则返回等待提示
+JNIEXPORT jstring JNICALL Java_com_example_gslab_ibored_MainActivity_UpdateResult
+        (JNIEnv *pJniEnv, jclass Jclass)
+{
+    unsigned  int uiLocalVar = 1;
+
+    uiTimeCounter += uiLocalVar;
+
+    if(uiTimeCounter &gt; 300)
+    {
+        //win
+        return pJniEnv-&gt;NewStringUTF(&quot;Enough. You Win!&quot;);
+    }
+    else
+    {
+        //wait
+        return pJniEnv-&gt;NewStringUTF(&quot;Just Wait.&quot;);
+    }
+}</code></pre>
+<h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><h3 id="第一步"><a href="#第一步" class="headerlink" title="第一步"></a>第一步</h3><p>找到我们需要修改的点。这里我们用IDA进行寻找。从下面代码中可以看到这里我们使用的r0寄存器进行判断，如果小于等于300就输出”just wait”,所以我们需要Hook的点就是这个判断语句处，将r0改成大于300即可</p>
+<p><img src="/2019/09/08/inline_Hook/1560307847662.png" alt></p>
+<p>计算出HOOK点相对模块的偏移地址。上图可以知道HOOK点的地址为AF86399A，基地址可以crtl+s，找到代码段的开始地址，在经过相减(AF88C49C-AF859000)得到偏移值为0x3349c</p>
+<p><img src="/2019/09/08/inline_Hook/1560307804978.png" alt></p>
+<h3 id="第二步"><a href="#第二步" class="headerlink" title="第二步"></a>第二步</h3><p>根据需要修改的点，利用我们最开始写的hook功能，来编写代码修改这个点</p>
+<pre><code class="cpp">#include &lt;vector&gt;
+
+extern &quot;C&quot;
+{
+    #include &quot;Ihook.h&quot;
+}
+
+//声明函数在加载库时被调用,也是hook的主函数
+void ModifyIBored() __attribute__((constructor));
+
+typedef std::vector&lt;INLINE_HOOK_INFO*&gt; InlineHookInfoPVec;
+static InlineHookInfoPVec gs_vecInlineHookInfo;     //管理HOOK点
+
+/**
+ *  对外inline hook接口，负责管理inline hook信息
+ *  @param  pHookAddr     要hook的地址
+ *  @param  onCallBack    要插入的回调函数
+ *  @return inlinehook是否设置成功（已经设置过，重复设置返回false）
+ */
+bool InlineHook(void *pHookAddr, void (*onCallBack)(struct pt_regs *))
+{
+    bool bRet = false;
+
+    if(pHookAddr == NULL || onCallBack == NULL)
+    {
+        return bRet;
+    }
+
+    //填写hook点位置和用户自定义回调函数
+    INLINE_HOOK_INFO* pstInlineHook = new INLINE_HOOK_INFO();
+    pstInlineHook-&gt;pHookAddr = pHookAddr;
+    pstInlineHook-&gt;onCallBack = onCallBack;
+
+    if(HookArm(pstInlineHook) == false)
+    {
+        LOGI(&quot;HookArm fail.&quot;);
+        delete pstInlineHook;
+        return bRet;
+    }
+
+    gs_vecInlineHookInfo.push_back(pstInlineHook);
+    return true;
+}
+
+/**
+ *  用户自定义的回调函数，修改r0寄存器大于300
+ */
+void EvilHookStubFunctionForIBored(pt_regs *regs)
+{
+    LOGI(&quot;In Evil Hook Stub.&quot;);
+    regs-&gt;uregs[0] = 0x333;
+}
+
+/**
+ *  1.Hook入口
+ */
+void ModifyIBored()
+{
+    LOGI(&quot;In IHook&#39;s ModifyIBored.&quot;);
+    void* pModuleBaseAddr = GetModuleBaseAddr(-1, &quot;libnative-lib.so&quot;);
+    if(pModuleBaseAddr == 0)
+    {
+        LOGI(&quot;get module base error.&quot;);
+        return;
+    }
+
+    //模块基址加上HOOK点的偏移地址就是HOOK点在内存中的位置
+    uint32_t uiHookAddr = (uint32_t)pModuleBaseAddr + 0x3349c;
+    LOGI(&quot;uiHookAddr is %X&quot;, uiHookAddr);
+
+    //HOOK函数
+    InlineHook((void*)(uiHookAddr), EvilHookStubFunctionForIBored);
+}</code></pre>
+<p>上面的hook代码中用到了获取基地址的函数pModuleBaseAddr，所以我们需要在<strong>hook.c</strong>文件中补充这个函数</p>
+<pre><code class="c">/*
+ * 通过/proc/$pid/maps，获取模块基址
+ * @param   pid                 模块所在进程pid，如果访问自身进程，可填小余0的值，如-1
+ * @param   pszModuleName       模块名字
+ * @return  void*               模块基址，错误则返回0
+ */
+void * GetModuleBaseAddr(pid_t pid, char* pszModuleName)
+{
+        FILE *pFileMaps = NULL;
+        unsigned long ulBaseValue = 0;
+        char szMapFilePath[256] = {0};
+        char szFileLineBuffer[1024] = {0};
+
+        //pid判断，确定maps文件
+        if (pid &lt; 0)
+        {
+            snprintf(szMapFilePath, sizeof(szMapFilePath), &quot;/proc/self/maps&quot;);
+        }
+        else
+        {
+            snprintf(szMapFilePath, sizeof(szMapFilePath),  &quot;/proc/%d/maps&quot;, pid);
+        }
+
+        pFileMaps = fopen(szMapFilePath, &quot;r&quot;);
+        if (NULL == pFileMaps)
+        {
+            return (void *)ulBaseValue;
+        }
+
+        //循环遍历maps文件，找到相应模块，截取地址信息
+        while (fgets(szFileLineBuffer, sizeof(szFileLineBuffer), pFileMaps) != NULL)
+        {
+            if (strstr(szFileLineBuffer, pszModuleName))
+            {
+                char *pszModuleAddress = strtok(szFileLineBuffer, &quot;-&quot;);
+                if (pszModuleAddress)
+                {
+                    ulBaseValue = strtoul(pszModuleAddress, NULL, 16);
+
+                    if (ulBaseValue == 0x8000)
+                    {
+                        ulBaseValue = 0;
+                    }
+                    break;
+                }
+            }
+        }
+
+        fclose(pFileMaps);
+        return (void *)ulBaseValue;
+}</code></pre>
+<h3 id="第三步"><a href="#第三步" class="headerlink" title="第三步"></a>第三步</h3><p>针对上面的代码我们进行编译工作</p>
+<p><strong>编译HOOK功能模块的静态库</strong>：jni/InlineHook/Android.mk</p>
+<p>同目录下有IHook.c、ihookstub.s、IHook.h、Andropid.mk</p>
+<ul>
+<li>LOCAL_ARM_MODE：编译后的指令都是4字节长度的arm指令集</li>
+<li>LOCAL_CPPFLAGS：如果编译cpp文件，需要给编译器传递一组选项</li>
+</ul>
+<pre><code>LOCAL_PATH := $(call my-dir)  
+
+
+include $(CLEAR_VARS)
+
+LOCAL_CPPFLAGS +=  -g -O0
+LOCAL_ARM_MODE := arm
+LOCAL_MODULE    := IHook
+LOCAL_SRC_FILES := IHook.c ihookstub.s
+LOCAL_LDLIBS += -L$(SYSROOT)/usr/lib -llog
+
+include $(BUILD_STATIC_LIBRARY)</code></pre><p><strong>hook主模块</strong>：jni/Interface/Android.mk</p>
+<p>同目录下有InlineHook.cpp、Android.mk</p>
+<ul>
+<li>LOCAL_STATIC_LIBRARIES：引用我们上面编译的静态库</li>
+<li>LOCAL_C_INCLUDES：此选项添加目录到include搜索路径中</li>
+</ul>
+<pre><code>LOCAL_PATH := $(call my-dir)  
+
+include $(CLEAR_VARS)
+
+LOCAL_CPPFLAGS +=  -g -O0
+LOCAL_ARM_MODE := arm
+LOCAL_MODULE    := InlineHook
+LOCAL_STATIC_LIBRARIES:= IHook
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../InlineHook
+LOCAL_SRC_FILES := InlineHook.cpp
+LOCAL_LDLIBS += -L$(SYSROOT)/usr/lib -llog
+
+include $(BUILD_SHARED_LIBRARY)</code></pre><p><strong>编译所有目录下的文件</strong>：jni/Android.mk</p>
+<pre><code>include $(call all-subdir-makefiles)</code></pre><p>jni/Application.mk</p>
+<ul>
+<li>APP_STL：选择C++标准库</li>
+<li>APP_CPPFLAGS：标记所有编译的cpp文件，启用C++异常</li>
+</ul>
+<pre><code>APP_ABI := armeabi-v7a
+APP_STL := c++_static
+APP_CPPFLAGS += -fexceptions</code></pre><p><strong>开始编译</strong>：在jni目录下执行<code>ndk-build</code>命令,即可在jni同目录下的libs目录中生成so共享库</p>
+<blockquote>
+<p>这里需要注意，我们上面写的hook模块是基于arm指令集的，所以我们测试用的项目也要声明使用arm指令集，如果是cmake，在app目录下的build.gradle文件中设置如下</p>
+<pre><code>defaultConfig {
+    ...
+     externalNativeBuild {
+            cmake {
+                ...
+                arguments &quot;-DANDROID_ARM_MODE=arm&quot;
+            }
+        }
+}</code></pre></blockquote>
+<h3 id="第四步"><a href="#第四步" class="headerlink" title="第四步"></a>第四步</h3><p>hook之后，我们出了成功提早输出这句话后，我们这边的比较指令也被改成相应跳转指令</p>
+<p><img src="/2019/09/08/inline_Hook/1560308215956.png" alt></p>
+<p><img src="/2019/09/08/inline_Hook/1560308396552.png" alt></p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>【1】先构造好我们的装函数，再覆盖原指令进行跳转。防止我们先进行原指令覆盖后，程序执行到这里但是我们的桩函数还没构造好而引发的异常</p>
+<p>【2】覆盖指令的是否为什幺覆盖2条，这是因为我们构造跳转指令的时候，需要两条指令的长度</p>
+<p>【3】一定需要注意指令集的确定，不同指令集我们跳转函数LDR PC,[RC, #-4]的指令是不同的，需要覆盖的长度也是不同的</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p>【书籍】游戏安全-手游安全技术入门</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android-Hook/" rel="tag"># Android Hook</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/08/ptrace注入(shellcode)/" rel="next" title="ptrace注入(shellcode)">
+                <i class="fa fa-chevron-left"></i> ptrace注入(shellcode)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/08/ptrace注入/" rel="prev" title="ptrace注入">
+                ptrace注入 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#概述"><span class="nav-number">2.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内联算法"><span class="nav-number">3.</span> <span class="nav-text">内联算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">4.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#应用实例"><span class="nav-number">5.</span> <span class="nav-text">应用实例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现过程"><span class="nav-number">5.1.</span> <span class="nav-text">实现过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一步"><span class="nav-number">5.1.1.</span> <span class="nav-text">第一步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二步"><span class="nav-number">5.1.2.</span> <span class="nav-text">第二步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第三步"><span class="nav-number">5.1.3.</span> <span class="nav-text">第三步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第四步"><span class="nav-number">5.1.4.</span> <span class="nav-text">第四步</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">6.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
