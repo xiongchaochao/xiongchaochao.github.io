@@ -17,7 +17,6 @@ tags: windows病毒分析
 
 * 创建进程(CreateProcessA)
   * 通过第二个参数lpCommandLine来启动恶意PE文件
-  * 通过配置第九个参数lpStartupInfo的输入、输出、错入流为socket句柄来创建远程shell
 
 本篇分析的样本通过修改所有EXE文件的导入表来将系统DLL替换成病毒DLL进行驻留。
 
