@@ -15,15 +15,21 @@ tags: windows病毒分析
 ### 样本功能分析
 
 1. 基础静态分析
-2. 
+2. 高级分析，画流程图理清病毒行为
+3. 衍生文件基础静态分析
+4. 衍生文件高级分析
 
 ### 报告撰写
 
-
+1. 病毒概况：病毒背景、大致功能
+2. 病毒简介：文件名、加壳等特征表格
+3. 分析过程
 
 # 实例
 
 ## 感染病毒分析
+
+`5E63F3294520B7C07EB4DA38A2BEA301`
 
 ### 基础静态分析
 
@@ -60,7 +66,7 @@ net share C$=C: /grant:everyone,full\r\nnet share C$=C:\r\n
 net start Server\r\nnet user Guest /active:no\r\ndel /a /f /q %0\r\nexit
 ```
 
-## 高级分析
+### 高级分析
 
 打开已存在"C:\Program Files\Common\Microsoft Shared\Index.dat"文件，判断文件开头两数据：
 
@@ -97,11 +103,71 @@ net start Server\r\nnet user Guest /active:no\r\ndel /a /f /q %0\r\nexit
 
 创建线程
 
- 
+ 监听受害者机器上所有网卡的40118端口
+
+![image-20191227110337714](D:\Blog\source\_posts\PC分析报告撰写流程\image-20191227110337714.png) 
+
+接收C2服务器的指令执行相应操作，需要满足接收的命令为二进制数据，不能输入ASCII字符(指令7除外)，前4字节是命令，4-8字节是传入数据长度，后面跟着的就是传入的数据
+
+| 指令  |                             操作                             |
+| :---: | :----------------------------------------------------------: |
+| 0x3EB |                      向C2发送'!Ce'字符                       |
+| 0x450 | 写数据到C:\Program Files\Common\Microsoft Shared\Index.dat，提权关机 |
+| 0x451 | 写数据到C:\Program Files\Common\Microsoft Shared\Index.dat，创建线程实现无限弹窗 |
+| 0x455 |                遍历盘符对所有文件进行简单加密                |
+| 0x453 | 创建并执行X.bat文件来实现共享C盘、创建并对Guest用户进行提权，最后删除自身 |
+| 0x458 |        DUMP资源节中的PE文件为Message.exe，隐藏并执行         |
+|   7   | 将C2发送的指定路径文件(.doc\|.xls\|.jpg)感染成病毒PE文件(同上面特定文件感染操作) |
+| 0x452 |                         结束无限弹窗                         |
+| 0x454 |     创建并执行X.bat文件来实现禁用Guest用户，最后删除自身     |
 
 下面分析上面关于当前执行模块不是C:\Program Files\Common\Microsoft Shared\resvr.exe文件的两外两种情况。
 
-1.当
+1.当前执行的进程模块不是C:\Program Files\Common\Microsoft Shared\resvr.exe，并且是被感染过的".doc|.xls|.rar|.jpg"文件时：将被感染的文件复制到"C:\Program Files\Common\Microsoft Shared\Index.dat"并且设置为系统文件并隐藏属性
+
+![image-20191227180509078](D:\Blog\source\_posts\PC分析报告撰写流程\image-20191227180509078.png)
+
+2.当前执行的进程模块不是C:\Program Files\Common\Microsoft Shared\resvr.exe，并且不是被感染过的".doc|.xls|.rar|.jpg"文件时：
+
+​	1)将当前模块对应PE文件后缀更改成dword_40200C存储的后缀字符并执行起来
+
+​	2)将当前模块dump到C:\Program Files\Common\Microsoft Shared\resvr.exe并执行起来
+
+![image-20191227181520223](D:\Blog\source\_posts\PC分析报告撰写流程\image-20191227181520223.png)
+
+socket连接到本地发送指令7
+
+![image-20191227183638612](D:\Blog\source\_posts\PC分析报告撰写流程\image-20191227183638612.png)
+
+接着上面两种情况都会进行自删除以及删除当前执行模块的可执行文件
+
+![image-20191227181617290](D:\Blog\source\_posts\PC分析报告撰写流程\image-20191227181617290.png)
+
+### 衍生文件基础静态分析
+
+`E5BCC51B80BA1D91CB7179FB7A58FED7`
+
+批处理文件操作
+
+命令执行
+
+```
+导入表函数：
+CreateFileA
+WriteFile
+ShellExecuteA
+
+字符串操作：
+X.bat
+del /a /f /q %0\r\nexit
+Begin:\r\ndel /f /q /a "%s"\r\nif exist "%s" goto Begin\r\n
+```
+
+### 衍生文件高级分析
+
+批处理删除当前模块pe文件和自身
+
+![image-20191227185213106](D:\Blog\source\_posts\PC分析报告撰写流程\image-20191227185213106.png)
 
 ## 参考
 
