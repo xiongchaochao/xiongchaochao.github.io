@@ -23,7 +23,10 @@ tags: windows病毒分析
 
 1. 病毒概况：病毒背景、大致功能
 2. 病毒简介：文件名、加壳等特征表格
+   1. 病毒行为总概况
 3. 分析过程
+   1. 主体病毒行为分析
+   2. 衍生物行为分析
 
 # 实例
 
@@ -85,7 +88,7 @@ net start Server\r\nnet user Guest /active:no\r\ndel /a /f /q %0\r\nexit
 
 ![image-20191226144249357](D:\Blog\source\_posts\PC分析报告撰写流程\image-20191226144249357.png)
 
-将保存这种特定文件长度的地址替换掉内存中0x11111111（前2000字节数据中）后面四字节数据进行存放
+将保存这种特定文件长度的地址替换掉内存中0x11111111（前2000字节数据中）后面四字节数据(0xFFFFFFFF)进行存放
 
 将保存这种特定文件后缀的地址替换掉内存中0x222222222e（前2000字节数据中）后面3字节数据进行存放
 
@@ -123,11 +126,15 @@ net start Server\r\nnet user Guest /active:no\r\ndel /a /f /q %0\r\nexit
 
 下面分析上面关于当前执行模块不是C:\Program Files\Common\Microsoft Shared\resvr.exe文件的两外两种情况。
 
-1.当前执行的进程模块不是C:\Program Files\Common\Microsoft Shared\resvr.exe，并且是被感染过的".doc|.xls|.rar|.jpg"文件时：将被感染的文件复制到"C:\Program Files\Common\Microsoft Shared\Index.dat"并且设置为系统文件并隐藏属性
+1.当前执行的进程模块不是C:\Program Files\Common\Microsoft Shared\resvr.exe，并且不是被感染过的".doc|.xls|.rar|.jpg"文件时：将被感染的文件复制到"C:\Program Files\Common\Microsoft Shared\resvr.exe"并且设置为系统文件并隐藏属性
 
 ![image-20191227180509078](D:\Blog\source\_posts\PC分析报告撰写流程\image-20191227180509078.png)
 
-2.当前执行的进程模块不是C:\Program Files\Common\Microsoft Shared\resvr.exe，并且不是被感染过的".doc|.xls|.rar|.jpg"文件时：
+接着执行起来复制后的resvr.exe文件
+
+![image-20191228125714855](D:\Blog\source\_posts\PC分析报告撰写流程\image-20191228125714855.png)
+
+2.当前执行的进程模块不是C:\Program Files\Common\Microsoft Shared\resvr.exe，并且是被感染过的".doc|.xls|.rar|.jpg"文件时：
 
 ​	1)将当前模块对应PE文件后缀更改成dword_40200C存储的后缀字符并执行起来
 
@@ -172,4 +179,3 @@ Begin:\r\ndel /f /q /a "%s"\r\nif exist "%s" goto Begin\r\n
 ## 参考
 
 【1】[一个感染型木马病毒分析（一）](https://blog.csdn.net/QQ1084283172/article/details/47280673)
-
